@@ -42,3 +42,5 @@ next-env.d.ts
 
 .idea
 AGENTS.md
+.idea/
+AGENTS.md
