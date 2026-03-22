@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+.idea
+AGENTS.md
+.env
+.env.local
+.env.*
+coverage
+npm-debug.log*
+pnpm-debug.log*
