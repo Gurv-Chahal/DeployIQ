@@ -1,0 +1,14 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - corepack enable
+      - corepack prepare pnpm@9 --activate
+      - pnpm install --frozen-lockfile
+  build:
+    commands:
+      - pnpm lint
+      - pnpm build
