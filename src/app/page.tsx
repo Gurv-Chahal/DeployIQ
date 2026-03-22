@@ -120,7 +120,7 @@ export default function Home() {
               </div>
 
               <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-stone-950 sm:text-5xl lg:text-6xl">
-                Ship changes with a risk report, not a PR review bot.
+                Shipping changes with a risk report, not a PR review bot.
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-700 sm:text-xl">

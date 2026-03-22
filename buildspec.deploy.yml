@@ -1,0 +1,42 @@
+version: 0.2
+
+env:
+  variables:
+    APP_REGION: ca-central-1
+    IMAGE_REPO_NAME: deployiq-web
+    CONTAINER_NAME: deployiq-web
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - corepack enable
+      - corepack prepare pnpm@9 --activate
+      - pnpm install --frozen-lockfile
+  pre_build:
+    commands:
+      - pnpm lint
+      - pnpm build
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REPOSITORY_URI=${ACCOUNT_ID}.dkr.ecr.${APP_REGION}.amazonaws.com/${IMAGE_REPO_NAME}
+      - IMAGE_TAG=$(echo ${CODEBUILD_RESOLVED_SOURCE_VERSION} | cut -c 1-7)
+      - IMAGE_URI=${REPOSITORY_URI}:${IMAGE_TAG}
+      - printf "REPOSITORY_URI=%s\nIMAGE_TAG=%s\nIMAGE_URI=%s\n" "$REPOSITORY_URI" "$IMAGE_TAG" "$IMAGE_URI" > image.env
+      - aws ecr get-login-password --region ${APP_REGION} | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${APP_REGION}.amazonaws.com
+  build:
+    commands:
+      - . ./image.env
+      - docker build -t ${IMAGE_REPO_NAME}:${IMAGE_TAG} .
+      - docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${IMAGE_URI}
+      - docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:latest
+  post_build:
+    commands:
+      - . ./image.env
+      - docker push ${IMAGE_URI}
+      - docker push ${REPOSITORY_URI}:latest
+      - printf '[{"name":"%s","imageUri":"%s"}]' "${CONTAINER_NAME}" "${IMAGE_URI}" > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
