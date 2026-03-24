@@ -16,6 +16,10 @@ import type { ReviewRequest, ReviewResponse, RetrievedContext } from "./types";
 // reducer: (_, b) => b means "replace old value with new value"
 const ReviewState = Annotation.Root({
     request: Annotation<ReviewRequest>,
+    repositoryId: Annotation<number | null>({
+        reducer: (_, b) => b,
+        default: () => null,
+    }),
     diffSummary: Annotation<string>({
         reducer: (_, b) => b,
         default: () => "",
@@ -158,6 +162,7 @@ async function store(
             reviewBody: review.reviewBody,
             riskScore: review.riskScore,
             riskFactors: review.riskFactors,
+            repositoryId: state.repositoryId,
         });
 
         // Index in ChromaDB for future RAG
@@ -209,9 +214,10 @@ const reviewGraph = workflow.compile();
 
 // Main entry point
 export async function runReview(
-    request: ReviewRequest
+    request: ReviewRequest,
+    repositoryId?: number | null
 ): Promise<ReviewResponse> {
-    const result = await reviewGraph.invoke({ request });
+    const result = await reviewGraph.invoke({ request, repositoryId: repositoryId ?? null });
 
     if (result.error) {
         throw new Error(result.error);
