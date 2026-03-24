@@ -35,7 +35,7 @@ const ReviewState = Annotation.Root({
 });
 
 const llm = new ChatOpenAI({
-    model: "gpt-4o",
+    model: "gpt-5.4",
     temperature: 0.1,
     openAIApiKey: process.env.OPENAI_API_KEY,
 });
