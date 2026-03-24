@@ -1,0 +1,43 @@
+name: DeployIQ Index Repository
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+permissions:
+  contents: read
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Collect source files and send to DeployIQ
+        env:
+          DEPLOYIQ_API_URL: ${{ secrets.DEPLOYIQ_API_URL }}
+          DEPLOYIQ_API_KEY: ${{ secrets.DEPLOYIQ_API_KEY }}
+        run: |
+          # Collect all TS/TSX/JS/JSON/YAML/Dockerfile files
+          FILES_JSON=$(find . -type f \( \
+            -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \
+            -o -name "*.json" -o -name "*.yml" -o -name "*.yaml" \
+            -o -name "Dockerfile" \
+          \) \
+            ! -path "*/node_modules/*" \
+            ! -path "*/.next/*" \
+            ! -path "*/drizzle/*" \
+            -print0 | while IFS= read -r -d '' file; do
+              CONTENT=$(cat "$file" | jq -Rs .)
+              echo "{\"path\": \"${file#./}\", \"content\": $CONTENT}"
+            done | jq -s '.')
+
+          PAYLOAD=$(jq -n \
+            --arg repoFullName "${{ github.repository }}" \
+            --argjson files "$FILES_JSON" \
+            '{ repoFullName: $repoFullName, files: $files }')
+
+          curl -s -X POST "${DEPLOYIQ_API_URL}/api/index-repo" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${DEPLOYIQ_API_KEY}" \
+            -d "$PAYLOAD"

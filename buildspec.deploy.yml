@@ -36,6 +36,13 @@ phases:
       - docker push ${IMAGE_URI}
       - docker push ${REPOSITORY_URI}:latest
       - printf '[{"name":"%s","imageUri":"%s"}]' "${CONTAINER_NAME}" "${IMAGE_URI}" > imagedefinitions.json
+      # Wait for ECS to stabilize, then trigger RAG re-index
+      - sleep 60
+      - |
+        curl -s -X POST "${DEPLOYIQ_API_URL}/api/index-repo" \
+          -H "Content-Type: application/json" \
+          -H "x-api-key: ${DEPLOYIQ_API_KEY}" \
+          -d '{"owner":"Gurv-Chahal","repo":"deployiq"}' || echo "Re-index trigger failed (non-fatal)"
 
 artifacts:
   files:
