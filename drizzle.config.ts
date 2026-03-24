@@ -1,8 +1,6 @@
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
-// tells drizzle where schema is and how to connect the database
-
 export default defineConfig({
     out: "./drizzle",
     schema: "./src/server/db/schema.ts",
@@ -13,6 +11,10 @@ export default defineConfig({
         user: process.env.DB_USER!,
         password: process.env.DB_PASSWORD!,
         database: process.env.DB_NAME!,
-        ssl: true,
+        ssl: { rejectUnauthorized: false },
+    },
+    migrations: {
+        table: "__drizzle_migrations",
+        schema: "public",
     },
 });
