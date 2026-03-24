@@ -35,21 +35,27 @@ jobs:
         env:
           DEPLOYIQ_API_URL: ${{ secrets.DEPLOYIQ_API_URL }}
           DEPLOYIQ_API_KEY: ${{ secrets.DEPLOYIQ_API_KEY }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BASE: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD: ${{ github.event.pull_request.head.ref }}
+          REPO_FULL_NAME: ${{ github.repository }}
         run: |
-          # Read diff and changed files
-          DIFF=$(cat /tmp/pr.diff)
-          CHANGED_FILES=$(cat /tmp/changed-files.txt | jq -R -s 'split("\n") | map(select(. != ""))')
+          # Build changed files JSON array
+          CHANGED_FILES=$(jq -R -s 'split("\n") | map(select(. != ""))' /tmp/changed-files.txt)
 
-          # Build JSON payload
+          # Build JSON payload safely using jq with env vars
+          # jq reads env vars directly, avoiding shell interpolation issues
           PAYLOAD=$(jq -n \
-            --arg repoFullName "${{ github.repository }}" \
-            --argjson prNumber "${{ github.event.pull_request.number }}" \
-            --arg prTitle "${{ github.event.pull_request.title }}" \
-            --arg prBody "${{ github.event.pull_request.body }}" \
-            --arg diff "$DIFF" \
+            --arg repoFullName "$REPO_FULL_NAME" \
+            --argjson prNumber "$PR_NUMBER" \
+            --arg prTitle "$PR_TITLE" \
+            --arg prBody "$PR_BODY" \
+            --rawfile diff /tmp/pr.diff \
             --argjson changedFiles "$CHANGED_FILES" \
-            --arg baseBranch "${{ github.event.pull_request.base.ref }}" \
-            --arg headBranch "${{ github.event.pull_request.head.ref }}" \
+            --arg baseBranch "$PR_BASE" \
+            --arg headBranch "$PR_HEAD" \
             '{
               repoFullName: $repoFullName,
               prNumber: $prNumber,
