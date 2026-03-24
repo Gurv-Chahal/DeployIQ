@@ -1,48 +1,55 @@
 import Link from "next/link";
 import {
-  Activity,
   ArrowRight,
   CheckCircle2,
   Clock3,
+  Cloud,
+  Container,
   Database,
-  GitBranch,
+  GitPullRequest,
   ListChecks,
+  Search,
+  Server,
   ShieldAlert,
   Waypoints,
   Zap,
   Eye,
   BarChart3,
+  Brain,
+  Bot,
+  Globe,
+  Workflow,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 const metrics = [
-  { label: "Blast Radius", value: "9", unit: "touchpoints", icon: Waypoints },
-  { label: "Missing Checks", value: "3", unit: "high-value gaps", icon: ListChecks },
+  { label: "Blast Radius", value: "9", unit: "touchpoints mapped", icon: Waypoints },
+  { label: "AI Context", value: "15", unit: "code sections analyzed", icon: Search },
   { label: "Risk Score", value: "High", unit: "confidence 92%", icon: ShieldAlert },
 ];
 
 const capabilities = [
   {
-    title: "System-Aware Analysis",
+    title: "Full-System Context",
     description:
-      "Maps every change against affected services, shared contracts, downstream consumers, and data stores — not just the diff.",
-    icon: Waypoints,
-    accent: "bg-sky-500/10 text-sky-600",
+      "Every review pulls in relevant code and past review history from your indexed codebase — the AI sees your full system, not just the diff.",
+    icon: Brain,
+    accent: "bg-violet-500/10 text-violet-600",
   },
   {
     title: "Evidence-Backed Risk Scoring",
     description:
-      "Ties risk calls to test coverage, past incidents, deploy history, and known weak spots. No vague summaries.",
+      "Ties risk calls to test coverage, past incidents, deploy history, and known weak spots. Scores 1–10 with confidence levels.",
     icon: BarChart3,
     accent: "bg-orange-500/10 text-orange-600",
   },
   {
-    title: "Actionable Rollout Plans",
+    title: "Blast Radius Mapping",
     description:
-      "Generates release sequencing, feature flag strategies, canary plans, watchpoints, and rollback guidance.",
-    icon: ShieldAlert,
-    accent: "bg-emerald-500/10 text-emerald-600",
+      "Maps every change against affected services, shared contracts, downstream consumers, and data stores automatically.",
+    icon: Waypoints,
+    accent: "bg-sky-500/10 text-sky-600",
   },
   {
     title: "Gap Detection",
@@ -54,49 +61,104 @@ const capabilities = [
   {
     title: "Incident Memory",
     description:
-      "Cross-references changes with historical incidents so the same failure patterns don't ship twice.",
+      "Cross-references changes with historical reviews and past incidents so the same failure patterns don't ship twice.",
     icon: Database,
     accent: "bg-rose-500/10 text-rose-600",
   },
   {
-    title: "Fast Feedback Loop",
+    title: "Automatic on Every PR",
     description:
-      "Reports generate in seconds on PR merge or commit push — integrated into your existing CI/CD pipeline.",
+      "GitHub Actions trigger analysis on every pull request — risk reports post as PR comments within seconds, no manual steps.",
     icon: Zap,
     accent: "bg-amber-500/10 text-amber-600",
   },
 ];
 
-const workflowSteps = [
+const pipelineSteps = [
   {
-    step: "Ingest",
-    detail: "PR, commit range, or release bundle enters the pipeline with full repo and service metadata.",
-    icon: GitBranch,
+    step: "PR Opened",
+    detail: "GitHub Actions detects a new pull request, extracts the diff, changed files, and PR metadata.",
+    icon: GitPullRequest,
+    color: "bg-sky-500/10 text-sky-400 border-sky-500/20",
   },
   {
-    step: "Map",
-    detail: "Trace affected services, dependencies, data stores, consumers, and prior instability zones.",
-    icon: Database,
+    step: "Context Retrieved",
+    detail: "AI searches your indexed codebase for relevant code sections and past reviews related to the change.",
+    icon: Search,
+    color: "bg-violet-500/10 text-violet-400 border-violet-500/20",
   },
   {
-    step: "Score",
-    detail: "Generate a structured report: severity, confidence, blast radius, missing checks, rollout plan.",
-    icon: Activity,
+    step: "Risk Analyzed",
+    detail: "Multi-step AI agent parses the diff, injects system context, and generates a structured risk report.",
+    icon: Brain,
+    color: "bg-orange-500/10 text-orange-400 border-orange-500/20",
   },
   {
-    step: "Ship",
-    detail: "Deploy with staged release guidance, alert watchpoints, and rollback context — not blind.",
-    icon: Clock3,
+    step: "Review Posted",
+    detail: "Structured risk report with blast radius, evidence, and rollout guidance posts directly as a PR comment.",
+    icon: CheckCircle2,
+    color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  },
+];
+
+const architectureRows = [
+  {
+    layer: "Frontend",
+    description: "Server-rendered UI for risk reports and dashboards",
+    tech: [
+      { name: "Next.js 16", icon: Globe },
+      { name: "React 19", icon: Globe },
+      { name: "TypeScript", icon: Globe },
+    ],
+    services: "Tailwind CSS v4 · shadcn/ui · Radix UI",
+    color: "border-sky-500/30 bg-sky-500/5",
+    accent: "text-sky-600",
+  },
+  {
+    layer: "AI Engine",
+    description: "Multi-step agent pipeline for contextual risk analysis",
+    tech: [
+      { name: "LangGraph", icon: Brain },
+      { name: "GPT-4o", icon: Bot },
+      { name: "ChromaDB", icon: Search },
+    ],
+    services: "LangChain · OpenAI Embeddings · Vector Search",
+    color: "border-violet-500/30 bg-violet-500/5",
+    accent: "text-violet-600",
+  },
+  {
+    layer: "Backend & Data",
+    description: "API routes, database access, and structured storage",
+    tech: [
+      { name: "Next.js API Routes", icon: Server },
+      { name: "Drizzle ORM", icon: Database },
+      { name: "PostgreSQL", icon: Database },
+    ],
+    services: "Amazon RDS · Connection Pooling · JSONB Storage",
+    color: "border-emerald-500/30 bg-emerald-500/5",
+    accent: "text-emerald-600",
+  },
+  {
+    layer: "CI/CD & Deployment",
+    description: "Automated build, test, and deploy pipeline on AWS",
+    tech: [
+      { name: "GitHub Actions", icon: Workflow },
+      { name: "AWS CodePipeline", icon: Workflow },
+      { name: "Docker", icon: Container },
+    ],
+    services: "CodeBuild · ECR · ECS Fargate · ca-central-1",
+    color: "border-orange-500/30 bg-orange-500/5",
+    accent: "text-orange-600",
   },
 ];
 
 const comparisonRows = [
-  { feature: "Analyzes full system context", deployiq: true, prBot: false },
+  { feature: "Analyzes full codebase context with AI", deployiq: true, prBot: false },
   { feature: "Maps blast radius across services", deployiq: true, prBot: false },
-  { feature: "References past incidents", deployiq: true, prBot: false },
-  { feature: "Structured risk reports", deployiq: true, prBot: false },
+  { feature: "References past reviews & incidents", deployiq: true, prBot: false },
+  { feature: "Structured JSON risk reports", deployiq: true, prBot: false },
   { feature: "Rollout sequencing & guidance", deployiq: true, prBot: false },
-  { feature: "Missing check detection", deployiq: true, prBot: false },
+  { feature: "Learns from your repository over time", deployiq: true, prBot: false },
 ];
 
 export default function Home() {
@@ -104,7 +166,7 @@ export default function Home() {
     <main className="relative min-h-screen overflow-hidden bg-stone-50 text-stone-950">
       {/* Background blurs */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-24 top-0 h-96 w-96 rounded-full bg-orange-200/60 blur-3xl" />
+        <div className="absolute -left-24 top-0 h-96 w-96 rounded-full bg-violet-200/50 blur-3xl" />
         <div className="absolute right-0 top-20 h-[28rem] w-[28rem] rounded-full bg-sky-200/50 blur-3xl" />
         <div className="absolute bottom-1/3 left-1/2 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl" />
       </div>
@@ -124,6 +186,7 @@ export default function Home() {
 
           <nav className="hidden items-center gap-6 text-sm text-stone-600 md:flex">
             <a href="#capabilities" className="transition-colors hover:text-stone-950">Features</a>
+            <a href="#architecture" className="transition-colors hover:text-stone-950">Architecture</a>
             <a href="#how-it-works" className="transition-colors hover:text-stone-950">How It Works</a>
             <a href="#report-preview" className="transition-colors hover:text-stone-950">Report Preview</a>
           </nav>
@@ -139,9 +202,9 @@ export default function Home() {
         {/* Hero */}
         <section className="mx-auto w-full max-w-7xl px-6 pb-20 pt-12 sm:px-8 lg:px-10 lg:pb-28 lg:pt-20">
           <div className="mx-auto max-w-4xl text-center">
-            <div className="mb-6 inline-flex items-center rounded-full border border-stone-200 bg-white/80 px-4 py-1.5 text-xs font-medium tracking-[0.14em] text-stone-600 uppercase backdrop-blur">
-              <span className="mr-2 inline-block h-2 w-2 rounded-full bg-emerald-500" />
-              Full-system deployment analysis
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/80 px-4 py-1.5 text-xs font-medium tracking-[0.14em] text-stone-600 uppercase backdrop-blur">
+              <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+              AI-powered deployment analysis
             </div>
 
             <h1 className="text-4xl font-semibold tracking-tight text-stone-950 sm:text-5xl lg:text-[3.5rem] lg:leading-[1.15]">
@@ -153,7 +216,8 @@ export default function Home() {
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-stone-600">
               DeployIQ analyzes code changes in full system context — using test
               coverage, past incidents, and change history — to surface blast
-              radius, missing checks, and safer rollout guidance.
+              radius, missing checks, and safer rollout guidance. Automatically,
+              on every pull request.
             </p>
 
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -169,13 +233,13 @@ export default function Home() {
                 size="lg"
                 className="h-12 border-stone-300 bg-white/60 px-6 text-base text-stone-900 hover:bg-white"
               >
-                <a href="#how-it-works">How It Works</a>
+                <a href="#architecture">See the Architecture</a>
               </Button>
             </div>
           </div>
 
           {/* Metric pills */}
-          <div className="mx-auto mt-16 grid max-w-3xl gap-4 sm:grid-cols-3">
+          <div className="mx-auto mt-14 grid max-w-3xl gap-4 sm:grid-cols-3">
             {metrics.map((m) => {
               const Icon = m.icon;
               return (
@@ -204,8 +268,9 @@ export default function Home() {
               Everything a diff review misses.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
-              DeployIQ goes beyond line-by-line commentary to analyze the full
-              blast radius of every change across your system.
+              DeployIQ goes beyond line-by-line commentary. It understands your
+              full codebase and historical context to analyze the true blast
+              radius of every change.
             </p>
           </div>
 
@@ -228,26 +293,112 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Architecture */}
+        <section id="architecture" className="mx-auto w-full max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-24">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-medium tracking-[0.16em] text-stone-500 uppercase">Architecture</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+              Full-stack, deployed on AWS.
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
+              A modern stack from frontend to infrastructure — containerized,
+              automated, and running on AWS Fargate.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-12 max-w-5xl space-y-4">
+            {architectureRows.map((row) => (
+              <div
+                key={row.layer}
+                className={`rounded-3xl border p-6 shadow-sm backdrop-blur ${row.color}`}
+              >
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                  {/* Layer info */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-3">
+                      <h3 className={`text-lg font-semibold ${row.accent}`}>{row.layer}</h3>
+                    </div>
+                    <p className="mt-1 text-sm leading-6 text-stone-600">{row.description}</p>
+                  </div>
+
+                  {/* Tech badges */}
+                  <div className="flex flex-wrap gap-2">
+                    {row.tech.map((t) => {
+                      const Icon = t.icon;
+                      return (
+                        <div
+                          key={t.name}
+                          className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white/80 px-3 py-2 text-sm font-medium text-stone-800 shadow-sm"
+                        >
+                          <Icon className="size-4 text-stone-500" />
+                          {t.name}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Services line */}
+                <p className="mt-4 text-xs font-medium text-stone-500">
+                  {row.services}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* AWS infrastructure callout */}
+          <div className="mx-auto mt-8 max-w-5xl rounded-3xl border border-stone-800 bg-stone-950 p-6 shadow-lg sm:p-8">
+            <div className="flex items-center gap-3">
+              <Cloud className="size-5 text-orange-400" />
+              <h3 className="text-lg font-semibold text-stone-50">AWS Infrastructure</h3>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { name: "ECS on Fargate", detail: "Serverless containers", icon: Container },
+                { name: "Amazon ECR", detail: "Docker image registry", icon: Container },
+                { name: "Amazon RDS", detail: "PostgreSQL database", icon: Database },
+                { name: "CodePipeline", detail: "Automated CI/CD", icon: Workflow },
+              ].map((svc) => {
+                const Icon = svc.icon;
+                return (
+                  <div key={svc.name} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+                    <Icon className="size-5 text-orange-400" />
+                    <p className="mt-2 font-medium text-stone-100">{svc.name}</p>
+                    <p className="mt-1 text-xs text-stone-500">{svc.detail}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-6 text-xs text-stone-500">
+              Region: ca-central-1 · Multi-stage Docker builds · Standalone Next.js output · Automated deploys on merge to main
+            </p>
+          </div>
+        </section>
+
         {/* How It Works */}
         <section id="how-it-works" className="mx-auto w-full max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-24">
           <div className="rounded-[2rem] border border-stone-200 bg-white/75 p-8 shadow-sm backdrop-blur sm:p-12">
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-sm font-medium tracking-[0.16em] text-stone-500 uppercase">How It Works</p>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-                From merge to risk report in seconds.
+                From PR to risk report in seconds.
               </h2>
+              <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
+                Open a pull request and DeployIQ handles the rest — no config, no
+                manual triggers.
+              </p>
             </div>
 
             <div className="mx-auto mt-12 grid max-w-4xl gap-0 sm:grid-cols-4">
-              {workflowSteps.map((item, index) => {
+              {pipelineSteps.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <div key={item.step} className="relative flex flex-col items-center text-center">
                     {/* Connector line */}
-                    {index < workflowSteps.length - 1 && (
+                    {index < pipelineSteps.length - 1 && (
                       <div className="absolute left-[calc(50%+2rem)] top-7 hidden h-px w-[calc(100%-4rem)] bg-stone-300 sm:block" />
                     )}
-                    <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-950 text-stone-50 shadow-lg shadow-stone-950/10">
+                    <div className={`relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl border ${item.color} shadow-sm`}>
                       <Icon className="size-6" />
                     </div>
                     <p className="mt-4 text-xs font-medium tracking-[0.14em] text-stone-400 uppercase">
@@ -270,13 +421,13 @@ export default function Home() {
               A real report, not a wall of comments.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
-              Every deployment gets a structured risk report with affected surface,
-              evidence trail, and an actionable release plan.
+              Every PR gets a structured risk report grounded in your codebase
+              context, scored by evidence, and delivered as actionable guidance.
             </p>
           </div>
 
           <div className="relative mx-auto mt-12 max-w-5xl">
-            <div className="absolute inset-x-10 -top-6 h-40 rounded-full bg-orange-500/15 blur-3xl" />
+            <div className="absolute inset-x-10 -top-6 h-40 rounded-full bg-violet-500/15 blur-3xl" />
             <div className="relative overflow-hidden rounded-[2rem] border border-stone-800 bg-stone-950 p-6 text-stone-50 shadow-2xl shadow-stone-950/20 sm:p-8">
               {/* Report header */}
               <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-6">
@@ -289,21 +440,26 @@ export default function Home() {
                     Backend change touching retry orchestration, webhook delivery,
                     and ledger reconciliation across 4 services.
                   </p>
+                  <div className="mt-3 flex items-center gap-3 text-xs text-stone-500">
+                    <span className="flex items-center gap-1"><Search className="size-3" /> 15 code sections analyzed</span>
+                    <span className="text-stone-700">·</span>
+                    <span className="flex items-center gap-1"><Clock3 className="size-3" /> 5 past reviews matched</span>
+                  </div>
                 </div>
                 <div className="shrink-0 rounded-2xl border border-orange-400/30 bg-orange-500/10 px-4 py-3 text-right">
                   <p className="text-xs font-medium tracking-[0.16em] text-orange-300 uppercase">Risk</p>
-                  <p className="mt-1 text-3xl font-semibold text-orange-100">High</p>
-                  <p className="text-xs text-orange-300/70">92% confidence</p>
+                  <p className="mt-1 text-3xl font-semibold text-orange-100">7 / 10</p>
+                  <p className="text-xs text-orange-300/70">High · 92% confidence</p>
                 </div>
               </div>
 
               {/* Report body */}
               <div className="mt-6 grid gap-4 md:grid-cols-2">
-                {/* Affected Surface */}
+                {/* Blast Radius */}
                 <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
                   <div className="flex items-center gap-2 text-sm font-medium text-stone-300">
                     <Waypoints className="size-4 text-sky-300" />
-                    Affected Surface
+                    Blast Radius
                   </div>
                   <ul className="mt-4 space-y-2 text-sm text-stone-300">
                     {[
@@ -318,6 +474,37 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
+                </section>
+
+                {/* AI Context */}
+                <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
+                  <div className="flex items-center gap-2 text-sm font-medium text-stone-300">
+                    <Brain className="size-4 text-violet-300" />
+                    System Context
+                  </div>
+                  <div className="mt-4 space-y-3 text-sm text-stone-300">
+                    <div className="rounded-2xl bg-white/5 px-3 py-3">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-stone-100">Codebase Match</p>
+                        <span className="text-xs text-violet-400">0.91 relevance</span>
+                      </div>
+                      <p className="mt-1 font-mono text-xs text-stone-500">src/services/retry-queue.ts:45-89</p>
+                      <p className="mt-1 text-stone-400">
+                        Existing retry logic uses exponential backoff with no
+                        circuit breaker — the refactor changes this path.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-white/5 px-3 py-3">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-stone-100">Past Review Match</p>
+                        <span className="text-xs text-violet-400">PR #47</span>
+                      </div>
+                      <p className="mt-1 text-stone-400">
+                        Prior retry queue regression caused duplicate webhook
+                        dispatch under load — flagged as high risk.
+                      </p>
+                    </div>
+                  </div>
                 </section>
 
                 {/* Evidence */}
@@ -335,36 +522,36 @@ export default function Home() {
                       </p>
                     </div>
                     <div className="rounded-2xl bg-white/5 px-3 py-3">
-                      <p className="font-medium text-stone-100">Similar incident in January</p>
+                      <p className="font-medium text-stone-100">No circuit breaker tests</p>
                       <p className="mt-1 text-stone-400">
-                        Prior retry queue regression caused duplicate webhook
-                        dispatch under load.
+                        New circuit breaker logic has zero test coverage in
+                        the current suite.
                       </p>
                     </div>
                   </div>
                 </section>
 
-                {/* Release Plan */}
-                <section className="rounded-3xl border border-white/10 bg-white/5 p-5 md:col-span-2">
+                {/* Rollout Guidance */}
+                <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
                   <div className="flex items-center gap-2 text-sm font-medium text-stone-300">
                     <ShieldAlert className="size-4 text-orange-300" />
-                    Recommended Release Plan
+                    Rollout Guidance
                   </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl bg-orange-500/10 px-4 py-4">
+                  <div className="mt-4 space-y-3">
+                    <div className="rounded-2xl bg-orange-500/10 px-4 py-3">
                       <p className="text-xs font-medium tracking-[0.14em] text-orange-300 uppercase">Step 1</p>
-                      <p className="mt-2 font-medium text-orange-50">Flag the new retry path</p>
-                      <p className="mt-1 text-xs text-orange-300/60">Ship behind a feature flag</p>
+                      <p className="mt-1 font-medium text-orange-50">Flag the new retry path</p>
+                      <p className="mt-1 text-xs text-orange-300/60">Ship behind a feature flag for staged rollout</p>
                     </div>
-                    <div className="rounded-2xl bg-sky-500/10 px-4 py-4">
+                    <div className="rounded-2xl bg-sky-500/10 px-4 py-3">
                       <p className="text-xs font-medium tracking-[0.14em] text-sky-300 uppercase">Step 2</p>
-                      <p className="mt-2 font-medium text-sky-50">Canary background workers</p>
-                      <p className="mt-1 text-xs text-sky-300/60">Roll out worker path first</p>
+                      <p className="mt-1 font-medium text-sky-50">Canary background workers</p>
+                      <p className="mt-1 text-xs text-sky-300/60">Roll out worker path first, monitor queue depth</p>
                     </div>
-                    <div className="rounded-2xl bg-emerald-500/10 px-4 py-4">
+                    <div className="rounded-2xl bg-emerald-500/10 px-4 py-3">
                       <p className="text-xs font-medium tracking-[0.14em] text-emerald-300 uppercase">Step 3</p>
-                      <p className="mt-2 font-medium text-emerald-50">Monitor and promote</p>
-                      <p className="mt-1 text-xs text-emerald-300/60">Watch queue depth + webhook retries</p>
+                      <p className="mt-1 font-medium text-emerald-50">Monitor and promote</p>
+                      <p className="mt-1 text-xs text-emerald-300/60">Watch webhook retries for 24h before full rollout</p>
                     </div>
                   </div>
                 </section>
@@ -412,8 +599,8 @@ export default function Home() {
               Stop shipping blind.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-400">
-              Get structured deployment risk reports with blast radius mapping,
-              evidence-backed scoring, and release guidance for every change.
+              Every PR gets a structured risk report — grounded in your codebase
+              context, scored with evidence, and delivered with rollout guidance.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button
@@ -439,8 +626,8 @@ export default function Home() {
             <span className="font-medium text-stone-700">DeployIQ</span>
           </div>
           <div className="flex items-center gap-2 text-stone-500">
-            <GitBranch className="size-4" />
-            <span>Deployment risk intelligence — not a PR review bot.</span>
+            <ShieldAlert className="size-4" />
+            <span>AI-powered deployment risk intelligence.</span>
           </div>
         </footer>
       </div>
