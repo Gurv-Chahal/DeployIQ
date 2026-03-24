@@ -1,0 +1,96 @@
+name: DeployIQ Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract PR diff
+        id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+
+          # Get the diff
+          gh pr diff "$PR_NUMBER" > /tmp/pr.diff
+
+          # Get changed file list
+          gh pr view "$PR_NUMBER" --json files --jq '.files[].path' > /tmp/changed-files.txt
+
+      - name: Call DeployIQ Review API
+        id: review
+        env:
+          DEPLOYIQ_API_URL: ${{ secrets.DEPLOYIQ_API_URL }}
+          DEPLOYIQ_API_KEY: ${{ secrets.DEPLOYIQ_API_KEY }}
+        run: |
+          # Read diff and changed files
+          DIFF=$(cat /tmp/pr.diff)
+          CHANGED_FILES=$(cat /tmp/changed-files.txt | jq -R -s 'split("\n") | map(select(. != ""))')
+
+          # Build JSON payload
+          PAYLOAD=$(jq -n \
+            --arg repoFullName "${{ github.repository }}" \
+            --argjson prNumber "${{ github.event.pull_request.number }}" \
+            --arg prTitle "${{ github.event.pull_request.title }}" \
+            --arg prBody "${{ github.event.pull_request.body }}" \
+            --arg diff "$DIFF" \
+            --argjson changedFiles "$CHANGED_FILES" \
+            --arg baseBranch "${{ github.event.pull_request.base.ref }}" \
+            --arg headBranch "${{ github.event.pull_request.head.ref }}" \
+            '{
+              repoFullName: $repoFullName,
+              prNumber: $prNumber,
+              prTitle: $prTitle,
+              prBody: $prBody,
+              diff: $diff,
+              changedFiles: $changedFiles,
+              baseBranch: $baseBranch,
+              headBranch: $headBranch
+            }')
+
+          # Call the API
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST "${DEPLOYIQ_API_URL}/api/review" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${DEPLOYIQ_API_KEY}" \
+            -d "$PAYLOAD")
+
+          # Extract HTTP status code and body
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "API returned HTTP $HTTP_CODE"
+            echo "$BODY"
+            exit 1
+          fi
+
+          # Extract review body for the PR comment
+          echo "$BODY" | jq -r '.review.reviewBody' > /tmp/review-body.md
+
+      - name: Post review as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reviewBody = fs.readFileSync('/tmp/review-body.md', 'utf8');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: reviewBody
+            });
