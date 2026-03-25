@@ -148,7 +148,7 @@ async function store(
     state: typeof ReviewState.State
 ): Promise<Partial<typeof ReviewState.State>> {
     try {
-        const { request, review } = state;
+        const { request, review, retrievedContext } = state;
 
         if (!review) {
             return { error: "No review to store" };
@@ -159,9 +159,17 @@ async function store(
             repoFullName: request.repoFullName,
             prNumber: request.prNumber,
             prTitle: request.prTitle,
+            prBody: request.prBody || null,
             reviewBody: review.reviewBody,
             riskScore: review.riskScore,
+            riskLevel: review.riskLevel,
             riskFactors: review.riskFactors,
+            reviewData: {
+                blastRadius: review.blastRadius,
+                deploymentRecommendations: review.deploymentRecommendations,
+                codeObservations: review.codeObservations,
+            },
+            retrievedContext: retrievedContext,
             repositoryId: state.repositoryId,
         });
 

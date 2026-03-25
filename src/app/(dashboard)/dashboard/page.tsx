@@ -116,9 +116,10 @@ export default async function DashboardPage() {
                     </h2>
                     <div className="space-y-3">
                         {userReviews.map((review) => (
-                            <div
+                            <Link
+                                href={`/dashboard/reports/${review.id}`}
                                 key={review.id}
-                                className="flex items-center gap-4 rounded-xl border border-stone-200 bg-white px-5 py-4 dark:border-stone-800 dark:bg-stone-900"
+                                className="flex items-center gap-4 rounded-xl border border-stone-200 bg-white px-5 py-4 transition-shadow hover:shadow-md dark:border-stone-800 dark:bg-stone-900"
                             >
                                 <div
                                     className={`flex h-9 w-9 items-center justify-center rounded-lg ${
@@ -157,7 +158,7 @@ export default async function DashboardPage() {
                                 >
                                     Risk: {review.riskScore}/10
                                 </span>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
