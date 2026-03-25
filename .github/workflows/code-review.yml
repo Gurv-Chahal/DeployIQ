@@ -17,6 +17,28 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Index repository code
+        env:
+          DEPLOYIQ_API_URL: ${{ secrets.DEPLOYIQ_API_URL }}
+          DEPLOYIQ_API_KEY: ${{ secrets.DEPLOYIQ_API_KEY }}
+          REPO_FULL_NAME: ${{ github.repository }}
+        run: |
+          FILES_JSON=$(find . -type f \
+            \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \
+               -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \
+               -o -name "*.rb" -o -name "*.yml" -o -name "*.yaml" \) \
+            ! -path "*/node_modules/*" ! -path "*/.next/*" ! -path "*/dist/*" \
+            ! -path "*/.git/*" ! -path "*/build/*" ! -path "*/__pycache__/*" \
+            | head -200 \
+            | while read -r file; do
+                content=$(head -500 "$file")
+                jq -n --arg path "$file" --arg content "$content" '{path: $path, content: $content}'
+              done | jq -s '.')
+          curl -s -X POST "${DEPLOYIQ_API_URL}/api/index-repo" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${DEPLOYIQ_API_KEY}" \
+            -d "$(jq -n --arg repo "$REPO_FULL_NAME" --argjson files "$FILES_JSON" '{repoFullName: $repo, files: $files}')" || true
+
       - name: Extract PR diff
         id: diff
         env:
