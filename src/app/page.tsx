@@ -443,78 +443,78 @@ export default async function Home() {
 
           <div className="relative mx-auto mt-12 max-w-5xl">
             <div className="absolute inset-x-10 -top-6 h-40 rounded-full bg-violet-500/15 blur-3xl" />
-            <div className="relative overflow-hidden rounded-[2rem] border border-stone-800 bg-stone-950 p-6 text-stone-50 shadow-2xl shadow-stone-950/20 sm:p-8">
+            <div className="relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-6 shadow-sm dark:border-stone-800 dark:bg-stone-900 sm:p-8">
               {/* Report header */}
-              <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-6">
+              <div className="flex items-start justify-between gap-4 border-b border-stone-200 pb-6 dark:border-stone-800">
                 <div>
-                  <p className="text-xs font-medium tracking-[0.18em] text-stone-400 uppercase">
+                  <p className="text-xs font-medium tracking-[0.18em] text-stone-500 uppercase dark:text-stone-400">
                     Deployment Risk Report
                   </p>
-                  <h3 className="mt-2 text-2xl font-semibold">Payments Retry Refactor</h3>
-                  <p className="mt-2 max-w-lg text-sm leading-6 text-stone-400">
+                  <h3 className="mt-2 text-2xl font-semibold text-stone-900 dark:text-stone-50">Payments Retry Refactor</h3>
+                  <p className="mt-2 max-w-lg text-sm leading-6 text-stone-500 dark:text-stone-400">
                     Backend change touching retry orchestration, webhook delivery,
                     and ledger reconciliation across 4 services.
                   </p>
-                  <div className="mt-3 flex items-center gap-3 text-xs text-stone-500">
+                  <div className="mt-3 flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400">
                     <span className="flex items-center gap-1"><Search className="size-3" /> 15 code sections analyzed</span>
-                    <span className="text-stone-700">·</span>
+                    <span className="text-stone-300 dark:text-stone-600">·</span>
                     <span className="flex items-center gap-1"><Clock3 className="size-3" /> 5 past reviews matched</span>
                   </div>
                 </div>
-                <div className="shrink-0 rounded-2xl border border-orange-400/30 bg-orange-500/10 px-4 py-3 text-right">
-                  <p className="text-xs font-medium tracking-[0.16em] text-orange-300 uppercase">Risk</p>
-                  <p className="mt-1 text-3xl font-semibold text-orange-100">7 / 10</p>
-                  <p className="text-xs text-orange-300/70">High · 92% confidence</p>
+                <div className="shrink-0 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-right dark:border-orange-400/30 dark:bg-orange-500/10">
+                  <p className="text-xs font-medium tracking-[0.16em] text-orange-600 uppercase dark:text-orange-300">Risk</p>
+                  <p className="mt-1 text-3xl font-semibold text-orange-700 dark:text-orange-100">7 / 10</p>
+                  <p className="text-xs text-orange-600 opacity-70 dark:text-orange-300">High · 92% confidence</p>
                 </div>
               </div>
 
               {/* Report body */}
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 {/* Blast Radius */}
-                <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
-                  <div className="flex items-center gap-2 text-sm font-medium text-stone-300">
-                    <Waypoints className="size-4 text-sky-300" />
+                <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                  <div className="flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-stone-300">
+                    <Waypoints className="size-4 text-sky-600 dark:text-sky-300" />
                     Blast Radius
                   </div>
-                  <ul className="mt-4 space-y-2 text-sm text-stone-300">
+                  <ul className="mt-4 space-y-2 text-sm">
                     {[
                       { name: "checkout-api", type: "direct" },
                       { name: "billing-ui", type: "consumer" },
                       { name: "ledger-worker", type: "async path" },
                       { name: "postgres / retries table", type: "stateful" },
                     ].map((s) => (
-                      <li key={s.name} className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2.5">
-                        <span className="font-mono text-xs">{s.name}</span>
-                        <span className="rounded-full bg-white/5 px-2 py-0.5 text-xs text-stone-500">{s.type}</span>
+                      <li key={s.name} className="flex items-center justify-between rounded-xl bg-white px-3 py-2.5 dark:bg-stone-800">
+                        <span className="font-mono text-xs text-stone-700 dark:text-stone-300">{s.name}</span>
+                        <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500 dark:bg-stone-700 dark:text-stone-400">{s.type}</span>
                       </li>
                     ))}
                   </ul>
                 </section>
 
                 {/* AI Context */}
-                <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
-                  <div className="flex items-center gap-2 text-sm font-medium text-stone-300">
-                    <Brain className="size-4 text-violet-300" />
+                <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                  <div className="flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-stone-300">
+                    <Brain className="size-4 text-violet-600 dark:text-violet-300" />
                     System Context
                   </div>
-                  <div className="mt-4 space-y-3 text-sm text-stone-300">
-                    <div className="rounded-2xl bg-white/5 px-3 py-3">
+                  <div className="mt-4 space-y-3 text-sm">
+                    <div className="rounded-xl bg-white px-3 py-3 dark:bg-stone-800">
                       <div className="flex items-center justify-between">
-                        <p className="font-medium text-stone-100">Codebase Match</p>
-                        <span className="text-xs text-violet-400">0.91 relevance</span>
+                        <p className="font-medium text-stone-900 dark:text-stone-100">Codebase Match</p>
+                        <span className="text-xs text-violet-600 dark:text-violet-400">0.91 relevance</span>
                       </div>
-                      <p className="mt-1 font-mono text-xs text-stone-500">src/services/retry-queue.ts:45-89</p>
-                      <p className="mt-1 text-stone-400">
+                      <p className="mt-1 font-mono text-xs text-stone-500 dark:text-stone-500">src/services/retry-queue.ts:45-89</p>
+                      <p className="mt-1 text-stone-600 dark:text-stone-400">
                         Existing retry logic uses exponential backoff with no
                         circuit breaker — the refactor changes this path.
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-white/5 px-3 py-3">
+                    <div className="rounded-xl bg-white px-3 py-3 dark:bg-stone-800">
                       <div className="flex items-center justify-between">
-                        <p className="font-medium text-stone-100">Past Review Match</p>
-                        <span className="text-xs text-violet-400">PR #47</span>
+                        <p className="font-medium text-stone-900 dark:text-stone-100">Past Review Match</p>
+                        <span className="text-xs text-violet-600 dark:text-violet-400">PR #47</span>
                       </div>
-                      <p className="mt-1 text-stone-400">
+                      <p className="mt-1 text-stone-600 dark:text-stone-400">
                         Prior retry queue regression caused duplicate webhook
                         dispatch under load — flagged as high risk.
                       </p>
@@ -523,22 +523,22 @@ export default async function Home() {
                 </section>
 
                 {/* Evidence */}
-                <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
-                  <div className="flex items-center gap-2 text-sm font-medium text-stone-300">
-                    <ListChecks className="size-4 text-emerald-300" />
+                <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                  <div className="flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-stone-300">
+                    <ListChecks className="size-4 text-emerald-600 dark:text-emerald-300" />
                     Evidence Summary
                   </div>
-                  <div className="mt-4 space-y-3 text-sm text-stone-300">
-                    <div className="rounded-2xl bg-white/5 px-3 py-3">
-                      <p className="font-medium text-stone-100">Tests cover the happy path only</p>
-                      <p className="mt-1 text-stone-400">
+                  <div className="mt-4 space-y-3 text-sm">
+                    <div className="rounded-xl bg-white px-3 py-3 dark:bg-stone-800">
+                      <p className="font-medium text-stone-900 dark:text-stone-100">Tests cover the happy path only</p>
+                      <p className="mt-1 text-stone-600 dark:text-stone-400">
                         Integration coverage exists for retry creation, but not
                         delayed reprocessing or rollback.
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-white/5 px-3 py-3">
-                      <p className="font-medium text-stone-100">No circuit breaker tests</p>
-                      <p className="mt-1 text-stone-400">
+                    <div className="rounded-xl bg-white px-3 py-3 dark:bg-stone-800">
+                      <p className="font-medium text-stone-900 dark:text-stone-100">No circuit breaker tests</p>
+                      <p className="mt-1 text-stone-600 dark:text-stone-400">
                         New circuit breaker logic has zero test coverage in
                         the current suite.
                       </p>
@@ -547,26 +547,26 @@ export default async function Home() {
                 </section>
 
                 {/* Rollout Guidance */}
-                <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
-                  <div className="flex items-center gap-2 text-sm font-medium text-stone-300">
-                    <ShieldAlert className="size-4 text-orange-300" />
+                <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                  <div className="flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-stone-300">
+                    <ShieldAlert className="size-4 text-orange-600 dark:text-orange-300" />
                     Rollout Guidance
                   </div>
                   <div className="mt-4 space-y-3">
-                    <div className="rounded-2xl bg-orange-500/10 px-4 py-3">
-                      <p className="text-xs font-medium tracking-[0.14em] text-orange-300 uppercase">Step 1</p>
-                      <p className="mt-1 font-medium text-orange-50">Flag the new retry path</p>
-                      <p className="mt-1 text-xs text-orange-300/60">Ship behind a feature flag for staged rollout</p>
+                    <div className="rounded-xl bg-orange-50 px-4 py-3 dark:bg-orange-500/10">
+                      <p className="text-xs font-medium tracking-[0.14em] text-orange-700 uppercase dark:text-orange-300">Step 1</p>
+                      <p className="mt-1 font-medium text-orange-950 dark:text-orange-50">Flag the new retry path</p>
+                      <p className="mt-1 text-xs text-orange-600/80 dark:text-orange-300/60">Ship behind a feature flag for staged rollout</p>
                     </div>
-                    <div className="rounded-2xl bg-sky-500/10 px-4 py-3">
-                      <p className="text-xs font-medium tracking-[0.14em] text-sky-300 uppercase">Step 2</p>
-                      <p className="mt-1 font-medium text-sky-50">Canary background workers</p>
-                      <p className="mt-1 text-xs text-sky-300/60">Roll out worker path first, monitor queue depth</p>
+                    <div className="rounded-xl bg-sky-50 px-4 py-3 dark:bg-sky-500/10">
+                      <p className="text-xs font-medium tracking-[0.14em] text-sky-700 uppercase dark:text-sky-300">Step 2</p>
+                      <p className="mt-1 font-medium text-sky-950 dark:text-sky-50">Canary background workers</p>
+                      <p className="mt-1 text-xs text-sky-600/80 dark:text-sky-300/60">Roll out worker path first, monitor queue depth</p>
                     </div>
-                    <div className="rounded-2xl bg-emerald-500/10 px-4 py-3">
-                      <p className="text-xs font-medium tracking-[0.14em] text-emerald-300 uppercase">Step 3</p>
-                      <p className="mt-1 font-medium text-emerald-50">Monitor and promote</p>
-                      <p className="mt-1 text-xs text-emerald-300/60">Watch webhook retries for 24h before full rollout</p>
+                    <div className="rounded-xl bg-emerald-50 px-4 py-3 dark:bg-emerald-500/10">
+                      <p className="text-xs font-medium tracking-[0.14em] text-emerald-700 uppercase dark:text-emerald-300">Step 3</p>
+                      <p className="mt-1 font-medium text-emerald-950 dark:text-emerald-50">Monitor and promote</p>
+                      <p className="mt-1 text-xs text-emerald-600/80 dark:text-emerald-300/60">Watch webhook retries for 24h before full rollout</p>
                     </div>
                   </div>
                 </section>
