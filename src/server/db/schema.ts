@@ -4,7 +4,7 @@ import { pgTable, serial, text, timestamp, integer, jsonb, boolean, uniqueIndex 
 
 export const users = pgTable("users", {
     id: serial("id").primaryKey(),
-    cognitoSub: text("cognito_sub").unique().notNull(),
+    githubId: text("github_id").unique().notNull(),
     email: text("email").unique().notNull(),
     name: text("name"),
     githubAccessToken: text("github_access_token"),   // encrypted via AES-256-GCM

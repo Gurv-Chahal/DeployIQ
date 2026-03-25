@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
     ArrowLeft,
@@ -23,11 +22,11 @@ type GitHubRepo = {
     description: string | null;
 };
 
-type Step = "github" | "select" | "configure" | "verify";
+type Step = "select" | "configure" | "verify";
 
 export default function AddRepoPage() {
     const router = useRouter();
-    const [step, setStep] = useState<Step>("github");
+    const [step, setStep] = useState<Step>("select");
     const [repos, setRepos] = useState<GitHubRepo[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
@@ -50,12 +49,9 @@ export default function AddRepoPage() {
                 const data = await res.json();
                 setRepos(data.repos ?? []);
                 setStep("select");
-            } else {
-                // GitHub not linked yet
-                setStep("github");
             }
         } catch {
-            setStep("github");
+            // keep on select step
         } finally {
             setLoading(false);
         }
@@ -205,56 +201,31 @@ jobs:
 
             {/* Progress steps */}
             <div className="flex items-center gap-2">
-                {(["github", "select", "configure", "verify"] as Step[]).map(
+                {(["select", "configure", "verify"] as Step[]).map(
                     (s, i) => (
                         <div key={s} className="flex items-center gap-2">
                             <div
                                 className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium ${
                                     step === s
                                         ? "bg-violet-600 text-white"
-                                        : ["github", "select", "configure", "verify"].indexOf(step) > i
+                                        : ["select", "configure", "verify"].indexOf(step) > i
                                           ? "bg-emerald-100 text-emerald-700"
                                           : "bg-stone-100 text-stone-400"
                                 }`}
                             >
-                                {["github", "select", "configure", "verify"].indexOf(step) > i ? (
+                                {["select", "configure", "verify"].indexOf(step) > i ? (
                                     <Check className="h-4 w-4" />
                                 ) : (
                                     i + 1
                                 )}
                             </div>
-                            {i < 3 && (
+                            {i < 2 && (
                                 <div className="h-px w-8 bg-stone-200 sm:w-16" />
                             )}
                         </div>
                     )
                 )}
             </div>
-
-            {/* Step 1: Connect GitHub */}
-            {step === "github" && (
-                <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center">
-                    <GitBranch className="mx-auto h-10 w-10 text-stone-400" />
-                    <h2 className="mt-4 text-lg font-medium text-stone-900">
-                        Connect your GitHub account
-                    </h2>
-                    <p className="mt-2 text-sm text-stone-500">
-                        We need access to your GitHub repositories to set up
-                        DeployIQ.
-                    </p>
-                    <Button
-                        onClick={() =>
-                            signIn("github", {
-                                callbackUrl: "/dashboard/repos/new",
-                            })
-                        }
-                        className="mt-6"
-                        size="lg"
-                    >
-                        Connect GitHub
-                    </Button>
-                </div>
-            )}
 
             {/* Step 2: Select repository */}
             {step === "select" && (

@@ -39,27 +39,9 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <div className="space-y-3">
-                    <Button
-                        onClick={() => signIn("cognito", { callbackUrl: "/dashboard" })}
-                        className="w-full"
-                        size="lg"
-                    >
-                        Sign in with AWS Cognito
-                    </Button>
-
-                    <div className="relative my-4">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-stone-200" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white px-2 text-stone-500">or</span>
-                        </div>
-                    </div>
-
+                <div>
                     <Button
                         onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-                        variant="outline"
                         className="w-full"
                         size="lg"
                     >
