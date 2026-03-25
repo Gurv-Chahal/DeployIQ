@@ -14,8 +14,8 @@ export function DashboardNav({
     return (
         <div className="flex items-center gap-4">
             <div className="text-right">
-                <p className="text-sm font-medium text-stone-900">{userName}</p>
-                <p className="text-xs text-stone-500">{userEmail}</p>
+                <p className="text-sm font-medium text-stone-900 dark:text-stone-100">{userName}</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400">{userEmail}</p>
             </div>
             <Button
                 variant="ghost"

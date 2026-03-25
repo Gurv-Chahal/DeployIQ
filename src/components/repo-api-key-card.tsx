@@ -42,15 +42,15 @@ export function RepoApiKeyCard({
     }
 
     return (
-        <div className="rounded-2xl border border-stone-200 bg-white p-6">
-            <h3 className="mb-3 text-sm font-semibold text-stone-900">
+        <div className="rounded-2xl border border-stone-200 bg-white p-6 dark:border-stone-800 dark:bg-stone-900">
+            <h3 className="mb-3 text-sm font-semibold text-stone-900 dark:text-stone-100">
                 API Key
             </h3>
-            <p className="mb-4 text-xs text-stone-500">
-                Use this key as the <code className="rounded bg-stone-100 px-1">DEPLOYIQ_API_KEY</code> secret in your GitHub repository.
+            <p className="mb-4 text-xs text-stone-500 dark:text-stone-400">
+                Use this key as the <code className="rounded bg-stone-100 px-1 dark:bg-stone-800">DEPLOYIQ_API_KEY</code> secret in your GitHub repository.
             </p>
             <div className="flex items-center gap-2">
-                <code className="flex-1 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm font-mono">
+                <code className="flex-1 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm font-mono dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100">
                     {visible ? apiKey : maskedKey}
                 </code>
                 <Button variant="ghost" size="sm" onClick={() => setVisible(!visible)}>

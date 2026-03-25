@@ -183,17 +183,17 @@ jobs:
             {/* Back button */}
             <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 text-sm text-stone-500 hover:text-stone-700"
+                className="inline-flex items-center gap-2 text-sm text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-300"
             >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Dashboard
             </Link>
 
             <div>
-                <h1 className="text-2xl font-semibold text-stone-900">
+                <h1 className="text-2xl font-semibold text-stone-900 dark:text-stone-100">
                     Add Repository
                 </h1>
-                <p className="mt-1 text-sm text-stone-500">
+                <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
                     Connect a GitHub repository to enable AI-powered deployment
                     risk analysis.
                 </p>
@@ -209,8 +209,8 @@ jobs:
                                     step === s
                                         ? "bg-violet-600 text-white"
                                         : ["select", "configure", "verify"].indexOf(step) > i
-                                          ? "bg-emerald-100 text-emerald-700"
-                                          : "bg-stone-100 text-stone-400"
+                                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                          : "bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-500"
                                 }`}
                             >
                                 {["select", "configure", "verify"].indexOf(step) > i ? (
@@ -220,7 +220,7 @@ jobs:
                                 )}
                             </div>
                             {i < 2 && (
-                                <div className="h-px w-8 bg-stone-200 sm:w-16" />
+                                <div className="h-px w-8 bg-stone-200 dark:bg-stone-700 sm:w-16" />
                             )}
                         </div>
                     )
@@ -229,8 +229,8 @@ jobs:
 
             {/* Step 2: Select repository */}
             {step === "select" && (
-                <div className="rounded-2xl border border-stone-200 bg-white p-6">
-                    <h2 className="mb-4 text-lg font-medium text-stone-900">
+                <div className="rounded-2xl border border-stone-200 bg-white p-6 dark:border-stone-800 dark:bg-stone-900">
+                    <h2 className="mb-4 text-lg font-medium text-stone-900 dark:text-stone-100">
                         Select a repository
                     </h2>
                     <div className="relative mb-4">
@@ -240,7 +240,7 @@ jobs:
                             placeholder="Search repositories..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+                            className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder-stone-500 dark:focus:border-violet-600 dark:focus:ring-violet-900/30"
                         />
                     </div>
                     <div className="max-h-80 space-y-1 overflow-y-auto">
@@ -250,30 +250,30 @@ jobs:
                                 onClick={() => setSelectedRepo(repo.full_name)}
                                 className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors ${
                                     selectedRepo === repo.full_name
-                                        ? "bg-violet-50 border border-violet-200"
-                                        : "hover:bg-stone-50"
+                                        ? "bg-violet-50 border border-violet-200 dark:bg-violet-900/20 dark:border-violet-700"
+                                        : "hover:bg-stone-50 dark:hover:bg-stone-800"
                                 }`}
                             >
                                 <GitBranch className="h-4 w-4 shrink-0 text-stone-400" />
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-medium text-stone-900">
+                                    <p className="truncate text-sm font-medium text-stone-900 dark:text-stone-100">
                                         {repo.full_name}
                                     </p>
                                     {repo.description && (
-                                        <p className="truncate text-xs text-stone-500">
+                                        <p className="truncate text-xs text-stone-500 dark:text-stone-400">
                                             {repo.description}
                                         </p>
                                     )}
                                 </div>
                                 {repo.private && (
-                                    <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500">
+                                    <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500 dark:bg-stone-800 dark:text-stone-400">
                                         Private
                                     </span>
                                 )}
                             </button>
                         ))}
                         {filteredRepos.length === 0 && (
-                            <p className="py-8 text-center text-sm text-stone-500">
+                            <p className="py-8 text-center text-sm text-stone-500 dark:text-stone-400">
                                 No repositories found.
                             </p>
                         )}
@@ -296,32 +296,32 @@ jobs:
             {/* Step 3: Configure */}
             {step === "configure" && apiKey && (
                 <div className="space-y-6">
-                    <div className="rounded-2xl border border-stone-200 bg-white p-6">
-                        <h2 className="mb-4 text-lg font-medium text-stone-900">
+                    <div className="rounded-2xl border border-stone-200 bg-white p-6 dark:border-stone-800 dark:bg-stone-900">
+                        <h2 className="mb-4 text-lg font-medium text-stone-900 dark:text-stone-100">
                             Configure GitHub Actions
                         </h2>
-                        <p className="mb-6 text-sm text-stone-500">
+                        <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">
                             Follow these steps to enable DeployIQ on{" "}
                             <strong>{selectedRepo}</strong>:
                         </p>
 
                         {/* Step A: Add secrets */}
-                        <div className="mb-6 rounded-xl bg-stone-50 p-4">
-                            <h3 className="mb-2 text-sm font-semibold text-stone-900">
+                        <div className="mb-6 rounded-xl bg-stone-50 p-4 dark:bg-stone-800">
+                            <h3 className="mb-2 text-sm font-semibold text-stone-900 dark:text-stone-100">
                                 1. Add repository secrets
                             </h3>
-                            <p className="mb-3 text-xs text-stone-500">
+                            <p className="mb-3 text-xs text-stone-500 dark:text-stone-400">
                                 Go to your repo &rarr; Settings &rarr; Secrets
                                 and variables &rarr; Actions &rarr; New
                                 repository secret
                             </p>
                             <div className="space-y-2">
-                                <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-stone-200">
+                                <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-stone-200 dark:bg-stone-900 dark:border-stone-700">
                                     <code className="flex-1 text-xs">
-                                        <span className="text-stone-500">
+                                        <span className="text-stone-500 dark:text-stone-400">
                                             DEPLOYIQ_API_KEY=
                                         </span>
-                                        <span className="text-stone-900">
+                                        <span className="text-stone-900 dark:text-stone-100">
                                             {apiKey}
                                         </span>
                                     </code>
@@ -329,7 +329,7 @@ jobs:
                                         onClick={() =>
                                             copyToClipboard(apiKey, "apiKey")
                                         }
-                                        className="text-stone-400 hover:text-stone-600"
+                                        className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
                                     >
                                         {copied === "apiKey" ? (
                                             <Check className="h-4 w-4 text-emerald-500" />
@@ -338,12 +338,12 @@ jobs:
                                         )}
                                     </button>
                                 </div>
-                                <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-stone-200">
+                                <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-stone-200 dark:bg-stone-900 dark:border-stone-700">
                                     <code className="flex-1 text-xs">
-                                        <span className="text-stone-500">
+                                        <span className="text-stone-500 dark:text-stone-400">
                                             DEPLOYIQ_API_URL=
                                         </span>
-                                        <span className="text-stone-900">
+                                        <span className="text-stone-900 dark:text-stone-100">
                                             {typeof window !== "undefined"
                                                 ? window.location.origin
                                                 : ""}
@@ -358,7 +358,7 @@ jobs:
                                                 "apiUrl"
                                             )
                                         }
-                                        className="text-stone-400 hover:text-stone-600"
+                                        className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
                                     >
                                         {copied === "apiUrl" ? (
                                             <Check className="h-4 w-4 text-emerald-500" />
@@ -371,13 +371,13 @@ jobs:
                         </div>
 
                         {/* Step B: Add workflow */}
-                        <div className="rounded-xl bg-stone-50 p-4">
-                            <h3 className="mb-2 text-sm font-semibold text-stone-900">
+                        <div className="rounded-xl bg-stone-50 p-4 dark:bg-stone-800">
+                            <h3 className="mb-2 text-sm font-semibold text-stone-900 dark:text-stone-100">
                                 2. Add the workflow file
                             </h3>
-                            <p className="mb-3 text-xs text-stone-500">
+                            <p className="mb-3 text-xs text-stone-500 dark:text-stone-400">
                                 Create{" "}
-                                <code className="rounded bg-stone-200 px-1">
+                                <code className="rounded bg-stone-200 px-1 dark:bg-stone-700">
                                     .github/workflows/deployiq-review.yml
                                 </code>{" "}
                                 in your repository with this content:
@@ -419,16 +419,16 @@ jobs:
 
             {/* Step 4: Verify */}
             {step === "verify" && (
-                <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center">
+                <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center dark:border-stone-800 dark:bg-stone-900">
                     {setupVerified ? (
                         <>
-                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-                                <Check className="h-8 w-8 text-emerald-600" />
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                                <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <h2 className="mt-4 text-lg font-medium text-stone-900">
+                            <h2 className="mt-4 text-lg font-medium text-stone-900 dark:text-stone-100">
                                 Setup complete!
                             </h2>
-                            <p className="mt-2 text-sm text-stone-500">
+                            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
                                 DeployIQ is now active on{" "}
                                 <strong>{selectedRepo}</strong>. Open a pull
                                 request to see your first risk report.
@@ -436,13 +436,13 @@ jobs:
                         </>
                     ) : (
                         <>
-                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
-                                <Clock className="h-8 w-8 text-amber-600" />
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+                                <Clock className="h-8 w-8 text-amber-600 dark:text-amber-400" />
                             </div>
-                            <h2 className="mt-4 text-lg font-medium text-stone-900">
+                            <h2 className="mt-4 text-lg font-medium text-stone-900 dark:text-stone-100">
                                 Workflow not detected yet
                             </h2>
-                            <p className="mt-2 text-sm text-stone-500">
+                            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
                                 Make sure you&apos;ve committed the workflow
                                 file to the main branch. You can skip this step
                                 and verify later.

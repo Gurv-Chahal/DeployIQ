@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { auth } from "@/lib/auth";
 
 const metrics = [
@@ -36,42 +37,42 @@ const capabilities = [
     description:
       "Every review pulls in relevant code and past review history from your indexed codebase — the AI sees your full system, not just the diff.",
     icon: Brain,
-    accent: "bg-violet-500/10 text-violet-600",
+    accent: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
   },
   {
     title: "Evidence-Backed Risk Scoring",
     description:
       "Ties risk calls to test coverage, past incidents, deploy history, and known weak spots. Scores 1–10 with confidence levels.",
     icon: BarChart3,
-    accent: "bg-orange-500/10 text-orange-600",
+    accent: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
   },
   {
     title: "Blast Radius Mapping",
     description:
       "Maps every change against affected services, shared contracts, downstream consumers, and data stores automatically.",
     icon: Waypoints,
-    accent: "bg-sky-500/10 text-sky-600",
+    accent: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
   },
   {
     title: "Gap Detection",
     description:
       "Surfaces missing migration rehearsals, untested rollback paths, partial integration coverage, and skipped preflight checks.",
     icon: Eye,
-    accent: "bg-purple-500/10 text-purple-600",
+    accent: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
   },
   {
-    title: "Incident Memory",
+    title: "Review History",
     description:
-      "Cross-references changes with historical reviews and past incidents so the same failure patterns don't ship twice.",
+        "Stores every PR review on your account so you can look back anytime. More functionality such as risk reports coming soon.",
     icon: Database,
-    accent: "bg-rose-500/10 text-rose-600",
+    accent: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
   },
   {
     title: "Automatic on Every PR",
     description:
       "GitHub Actions trigger analysis on every pull request — risk reports post as PR comments within seconds, no manual steps.",
     icon: Zap,
-    accent: "bg-amber-500/10 text-amber-600",
+    accent: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
   },
 ];
 
@@ -96,7 +97,7 @@ const pipelineSteps = [
   },
   {
     step: "Review Posted",
-    detail: "Structured risk report with blast radius, evidence, and rollout guidance posts directly as a PR comment.",
+    detail: "Structured risk report posts directly as a PR comment, and with further context in your dashboard.",
     icon: CheckCircle2,
     color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   },
@@ -113,31 +114,31 @@ const architectureRows = [
     ],
     services: "Tailwind CSS v4 · shadcn/ui · Radix UI",
     color: "border-sky-500/30 bg-sky-500/5",
-    accent: "text-sky-600",
+    accent: "text-sky-600 dark:text-sky-400",
   },
   {
     layer: "AI Engine",
     description: "Multi-step agent pipeline for contextual risk analysis",
     tech: [
       { name: "LangGraph", icon: Brain },
-      { name: "GPT-4o", icon: Bot },
+      { name: "GPT-5.4", icon: Bot },
       { name: "ChromaDB", icon: Search },
     ],
-    services: "LangChain · OpenAI Embeddings · Vector Search",
+    services: "LangChain/LangGraph · OpenAI Embeddings · Vector Database",
     color: "border-violet-500/30 bg-violet-500/5",
-    accent: "text-violet-600",
+    accent: "text-violet-600 dark:text-violet-400",
   },
   {
     layer: "Backend & Data",
     description: "API routes, database access, and structured storage",
     tech: [
-      { name: "Next.js API Routes", icon: Server },
+      { name: "API Routes", icon: Server },
       { name: "Drizzle ORM", icon: Database },
       { name: "PostgreSQL", icon: Database },
     ],
     services: "Amazon RDS · Connection Pooling · JSONB Storage",
     color: "border-emerald-500/30 bg-emerald-500/5",
-    accent: "text-emerald-600",
+    accent: "text-emerald-600 dark:text-emerald-400",
   },
   {
     layer: "CI/CD & Deployment",
@@ -147,9 +148,9 @@ const architectureRows = [
       { name: "AWS CodePipeline", icon: Workflow },
       { name: "Docker", icon: Container },
     ],
-    services: "CodeBuild · ECR · ECS Fargate · ca-central-1",
+    services: "CodeBuild · ECR · ECS Fargate",
     color: "border-orange-500/30 bg-orange-500/5",
-    accent: "text-orange-600",
+    accent: "text-orange-600 dark:text-orange-400",
   },
 ];
 
@@ -165,35 +166,36 @@ const comparisonRows = [
 export default async function Home() {
   const session = await auth();
   return (
-    <main className="relative min-h-screen overflow-hidden bg-stone-50 text-stone-950">
+    <main className="relative min-h-screen overflow-hidden bg-stone-50 text-stone-950 dark:bg-stone-950 dark:text-stone-50">
       {/* Background blurs */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-24 top-0 h-96 w-96 rounded-full bg-violet-200/50 blur-3xl" />
-        <div className="absolute right-0 top-20 h-[28rem] w-[28rem] rounded-full bg-sky-200/50 blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/2 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl" />
+        <div className="absolute -left-24 top-0 h-96 w-96 rounded-full bg-violet-200/50 blur-3xl dark:bg-violet-900/30" />
+        <div className="absolute right-0 top-20 h-[28rem] w-[28rem] rounded-full bg-sky-200/50 blur-3xl dark:bg-sky-900/30" />
+        <div className="absolute bottom-1/3 left-1/2 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl dark:bg-emerald-900/30" />
       </div>
 
       <div className="relative">
         {/* Header */}
         <header className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6 sm:px-8 lg:px-10">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950 text-sm font-semibold text-stone-50 shadow-lg shadow-stone-950/10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950 text-sm font-semibold text-stone-50 shadow-lg shadow-stone-950/10 dark:bg-stone-50 dark:text-stone-950">
               DI
             </div>
             <div>
-              <p className="text-sm font-semibold tracking-wide text-stone-900">DeployIQ</p>
-              <p className="text-xs text-stone-500">Deployment risk intelligence</p>
+              <p className="text-sm font-semibold tracking-wide text-stone-900 dark:text-stone-100">DeployIQ</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">Deployment risk intelligence</p>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-6 text-sm text-stone-600 md:flex">
-            <a href="#capabilities" className="transition-colors hover:text-stone-950">Features</a>
-            <a href="#architecture" className="transition-colors hover:text-stone-950">Architecture</a>
-            <a href="#how-it-works" className="transition-colors hover:text-stone-950">How It Works</a>
-            <a href="#report-preview" className="transition-colors hover:text-stone-950">Report Preview</a>
+          <nav className="hidden items-center gap-6 text-sm text-stone-600 dark:text-stone-400 md:flex">
+            <a href="#capabilities" className="transition-colors hover:text-stone-950 dark:hover:text-stone-50">Features</a>
+            <a href="#architecture" className="transition-colors hover:text-stone-950 dark:hover:text-stone-50">Architecture</a>
+            <a href="#how-it-works" className="transition-colors hover:text-stone-950 dark:hover:text-stone-50">How It Works</a>
+            <a href="#report-preview" className="transition-colors hover:text-stone-950 dark:hover:text-stone-50">Report Preview</a>
           </nav>
 
           <div className="hidden items-center gap-3 sm:flex">
+            <ThemeToggle />
             <Button asChild size="sm" variant="outline">
               <a href="#report-preview">
                 See a Report
@@ -215,22 +217,22 @@ export default async function Home() {
         {/* Hero */}
         <section className="mx-auto w-full max-w-7xl px-6 pb-20 pt-12 sm:px-8 lg:px-10 lg:pb-28 lg:pt-20">
           <div className="mx-auto max-w-4xl text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/80 px-4 py-1.5 text-xs font-medium tracking-[0.14em] text-stone-600 uppercase backdrop-blur">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/80 px-4 py-1.5 text-xs font-medium tracking-[0.14em] text-stone-600 uppercase backdrop-blur dark:border-stone-800 dark:bg-stone-900/80 dark:text-stone-400">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
               AI-powered deployment analysis
             </div>
 
-            <h1 className="text-4xl font-semibold tracking-tight text-stone-950 sm:text-5xl lg:text-[3.5rem] lg:leading-[1.15]">
+            <h1 className="text-4xl font-semibold tracking-tight text-stone-950 dark:text-stone-50 sm:text-5xl lg:text-[3.5rem] lg:leading-[1.15]">
               Know the risk before you ship,
               <br className="hidden sm:block" />
-              <span className="text-stone-500">not after the incident.</span>
+              <span className="text-stone-500 dark:text-stone-400">not after the incident.</span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-stone-600">
-              DeployIQ analyzes code changes in full system context — using test
-              coverage, past incidents, and change history — to surface blast
-              radius, missing checks, and safer rollout guidance. Automatically,
-              on every pull request.
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-stone-600 dark:text-stone-400">
+              DeployIQ generates full deployment risk reports on every pull request —
+              stored on your account and used to learn from your history.
+              Every review builds smarter context, surfacing blast radius, missing checks,
+              and safer rollout guidance automatically.
             </p>
 
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -244,7 +246,7 @@ export default async function Home() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="h-12 border-stone-300 bg-white/60 px-6 text-base text-stone-900 hover:bg-white"
+                className="h-12 border-stone-300 bg-white/60 px-6 text-base text-stone-900 hover:bg-white dark:border-stone-700 dark:bg-stone-900/60 dark:text-stone-100 dark:hover:bg-stone-800"
               >
                 <a href="#architecture">See the Architecture</a>
               </Button>
@@ -258,14 +260,14 @@ export default async function Home() {
               return (
                 <div
                   key={m.label}
-                  className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white/70 px-5 py-4 shadow-sm backdrop-blur"
+                  className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white/70 px-5 py-4 shadow-sm backdrop-blur dark:border-stone-800 dark:bg-stone-900/70"
                 >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-950 text-stone-50">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-950 text-stone-50 dark:bg-stone-50 dark:text-stone-950">
                     <Icon className="size-5" />
                   </div>
                   <div>
-                    <p className="text-2xl font-semibold text-stone-950">{m.value}</p>
-                    <p className="text-xs text-stone-500">{m.unit}</p>
+                    <p className="text-2xl font-semibold text-stone-950 dark:text-stone-50">{m.value}</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">{m.unit}</p>
                   </div>
                 </div>
               );
@@ -276,11 +278,11 @@ export default async function Home() {
         {/* Capabilities */}
         <section id="capabilities" className="mx-auto w-full max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-medium tracking-[0.16em] text-stone-500 uppercase">Capabilities</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+            <p className="text-sm font-medium tracking-[0.16em] text-stone-500 dark:text-stone-400 uppercase">Capabilities</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 dark:text-stone-50 sm:text-4xl">
               Everything a diff review misses.
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600 dark:text-stone-400">
               DeployIQ goes beyond line-by-line commentary. It understands your
               full codebase and historical context to analyze the true blast
               radius of every change.
@@ -293,13 +295,13 @@ export default async function Home() {
               return (
                 <article
                   key={cap.title}
-                  className="group rounded-3xl border border-stone-200 bg-white/70 p-6 shadow-sm backdrop-blur transition-shadow hover:shadow-md"
+                  className="group rounded-3xl border border-stone-200 bg-white/70 p-6 shadow-sm backdrop-blur transition-shadow hover:shadow-md dark:border-stone-800 dark:bg-stone-900/70"
                 >
                   <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${cap.accent}`}>
                     <Icon className="size-5" />
                   </div>
-                  <h3 className="text-lg font-semibold text-stone-950">{cap.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-stone-600">{cap.description}</p>
+                  <h3 className="text-lg font-semibold text-stone-950 dark:text-stone-50">{cap.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-stone-600 dark:text-stone-400">{cap.description}</p>
                 </article>
               );
             })}
@@ -309,11 +311,11 @@ export default async function Home() {
         {/* Architecture */}
         <section id="architecture" className="mx-auto w-full max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-medium tracking-[0.16em] text-stone-500 uppercase">Architecture</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+            <p className="text-sm font-medium tracking-[0.16em] text-stone-500 dark:text-stone-400 uppercase">Architecture</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 dark:text-stone-50 sm:text-4xl">
               Full-stack, deployed on AWS.
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600 dark:text-stone-400">
               A modern stack from frontend to infrastructure — containerized,
               automated, and running on AWS Fargate.
             </p>
@@ -331,7 +333,7 @@ export default async function Home() {
                     <div className="flex items-center gap-3">
                       <h3 className={`text-lg font-semibold ${row.accent}`}>{row.layer}</h3>
                     </div>
-                    <p className="mt-1 text-sm leading-6 text-stone-600">{row.description}</p>
+                    <p className="mt-1 text-sm leading-6 text-stone-600 dark:text-stone-400">{row.description}</p>
                   </div>
 
                   {/* Tech badges */}
@@ -341,9 +343,9 @@ export default async function Home() {
                       return (
                         <div
                           key={t.name}
-                          className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white/80 px-3 py-2 text-sm font-medium text-stone-800 shadow-sm"
+                          className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white/80 px-3 py-2 text-sm font-medium text-stone-800 shadow-sm dark:border-stone-700 dark:bg-stone-900/80 dark:text-stone-200"
                         >
-                          <Icon className="size-4 text-stone-500" />
+                          <Icon className="size-4 text-stone-500 dark:text-stone-400" />
                           {t.name}
                         </div>
                       );
@@ -352,7 +354,7 @@ export default async function Home() {
                 </div>
 
                 {/* Services line */}
-                <p className="mt-4 text-xs font-medium text-stone-500">
+                <p className="mt-4 text-xs font-medium text-stone-500 dark:text-stone-400">
                   {row.services}
                 </p>
               </div>
@@ -390,13 +392,13 @@ export default async function Home() {
 
         {/* How It Works */}
         <section id="how-it-works" className="mx-auto w-full max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-24">
-          <div className="rounded-[2rem] border border-stone-200 bg-white/75 p-8 shadow-sm backdrop-blur sm:p-12">
+          <div className="rounded-[2rem] border border-stone-200 bg-white/75 p-8 shadow-sm backdrop-blur dark:border-stone-800 dark:bg-stone-900/75 sm:p-12">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="text-sm font-medium tracking-[0.16em] text-stone-500 uppercase">How It Works</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+              <p className="text-sm font-medium tracking-[0.16em] text-stone-500 dark:text-stone-400 uppercase">How It Works</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 dark:text-stone-50 sm:text-4xl">
                 From PR to risk report in seconds.
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
+              <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600 dark:text-stone-400">
                 Open a pull request and DeployIQ handles the rest — no config, no
                 manual triggers.
               </p>
@@ -409,7 +411,7 @@ export default async function Home() {
                   <div key={item.step} className="relative flex flex-col items-center text-center">
                     {/* Connector line */}
                     {index < pipelineSteps.length - 1 && (
-                      <div className="absolute left-[calc(50%+2rem)] top-7 hidden h-px w-[calc(100%-4rem)] bg-stone-300 sm:block" />
+                      <div className="absolute left-[calc(50%+2rem)] top-7 hidden h-px w-[calc(100%-4rem)] bg-stone-300 dark:bg-stone-700 sm:block" />
                     )}
                     <div className={`relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl border ${item.color} shadow-sm`}>
                       <Icon className="size-6" />
@@ -417,8 +419,8 @@ export default async function Home() {
                     <p className="mt-4 text-xs font-medium tracking-[0.14em] text-stone-400 uppercase">
                       Step {index + 1}
                     </p>
-                    <h3 className="mt-1 text-lg font-semibold text-stone-950">{item.step}</h3>
-                    <p className="mt-2 max-w-48 text-sm leading-6 text-stone-600">{item.detail}</p>
+                    <h3 className="mt-1 text-lg font-semibold text-stone-950 dark:text-stone-50">{item.step}</h3>
+                    <p className="mt-2 max-w-48 text-sm leading-6 text-stone-600 dark:text-stone-400">{item.detail}</p>
                   </div>
                 );
               })}
@@ -429,11 +431,11 @@ export default async function Home() {
         {/* Report Preview */}
         <section id="report-preview" className="mx-auto w-full max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-medium tracking-[0.16em] text-stone-500 uppercase">Report Preview</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+            <p className="text-sm font-medium tracking-[0.16em] text-stone-500 dark:text-stone-400 uppercase">Report Preview</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 dark:text-stone-50 sm:text-4xl">
               A real report, not a wall of comments.
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600 dark:text-stone-400">
               Every PR gets a structured risk report grounded in your codebase
               context, scored by evidence, and delivered as actionable guidance.
             </p>
@@ -576,14 +578,14 @@ export default async function Home() {
         {/* Comparison */}
         <section className="mx-auto w-full max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-medium tracking-[0.16em] text-stone-500 uppercase">Why DeployIQ</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+            <p className="text-sm font-medium tracking-[0.16em] text-stone-500 dark:text-stone-400 uppercase">Why DeployIQ</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950 dark:text-stone-50 sm:text-4xl">
               Risk intelligence, not code commentary.
             </h2>
           </div>
 
-          <div className="mx-auto mt-12 max-w-2xl overflow-hidden rounded-3xl border border-stone-200 bg-white/70 shadow-sm backdrop-blur">
-            <div className="grid grid-cols-[1fr_5rem_5rem] items-center gap-0 border-b border-stone-200 bg-stone-100/80 px-6 py-3 text-xs font-medium tracking-[0.12em] text-stone-500 uppercase">
+          <div className="mx-auto mt-12 max-w-2xl overflow-hidden rounded-3xl border border-stone-200 bg-white/70 shadow-sm backdrop-blur dark:border-stone-800 dark:bg-stone-900/70">
+            <div className="grid grid-cols-[1fr_5rem_5rem] items-center gap-0 border-b border-stone-200 bg-stone-100/80 px-6 py-3 text-xs font-medium tracking-[0.12em] text-stone-500 uppercase dark:border-stone-800 dark:bg-stone-800/80 dark:text-stone-400">
               <span>Capability</span>
               <span className="text-center">DeployIQ</span>
               <span className="text-center">PR Bots</span>
@@ -592,14 +594,14 @@ export default async function Home() {
               <div
                 key={row.feature}
                 className={`grid grid-cols-[1fr_5rem_5rem] items-center gap-0 px-6 py-3.5 text-sm ${
-                  i < comparisonRows.length - 1 ? "border-b border-stone-100" : ""
+                  i < comparisonRows.length - 1 ? "border-b border-stone-100 dark:border-stone-800" : ""
                 }`}
               >
-                <span className="text-stone-700">{row.feature}</span>
+                <span className="text-stone-700 dark:text-stone-300">{row.feature}</span>
                 <span className="flex justify-center">
-                  <CheckCircle2 className="size-5 text-emerald-600" />
+                  <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400" />
                 </span>
-                <span className="flex justify-center text-stone-300">—</span>
+                <span className="flex justify-center text-stone-300 dark:text-stone-600">—</span>
               </div>
             ))}
           </div>
@@ -631,14 +633,14 @@ export default async function Home() {
         </section>
 
         {/* Footer */}
-        <footer className="mx-auto flex w-full max-w-7xl flex-col gap-4 border-t border-stone-200 px-6 py-10 text-sm text-stone-500 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10">
+        <footer className="mx-auto flex w-full max-w-7xl flex-col gap-4 border-t border-stone-200 px-6 py-10 text-sm text-stone-500 dark:border-stone-800 dark:text-stone-400 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-stone-950 text-xs font-semibold text-stone-50">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-stone-950 text-xs font-semibold text-stone-50 dark:bg-stone-50 dark:text-stone-950">
               DI
             </div>
-            <span className="font-medium text-stone-700">DeployIQ</span>
+            <span className="font-medium text-stone-700 dark:text-stone-300">DeployIQ</span>
           </div>
-          <div className="flex items-center gap-2 text-stone-500">
+          <div className="flex items-center gap-2 text-stone-500 dark:text-stone-400">
             <ShieldAlert className="size-4" />
             <span>AI-powered deployment risk intelligence.</span>
           </div>

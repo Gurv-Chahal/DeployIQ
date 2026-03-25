@@ -36,10 +36,10 @@ export default async function DashboardPage() {
             {/* Page header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-stone-900">
+                    <h1 className="text-2xl font-semibold text-stone-900 dark:text-stone-100">
                         Dashboard
                     </h1>
-                    <p className="mt-1 text-sm text-stone-500">
+                    <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
                         Manage your repositories and view deployment risk reports.
                     </p>
                 </div>
@@ -53,12 +53,12 @@ export default async function DashboardPage() {
 
             {/* Repository list */}
             {repos.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-12 text-center">
+                <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-12 text-center dark:border-stone-700 dark:bg-stone-900">
                     <GitBranch className="mx-auto h-10 w-10 text-stone-400" />
-                    <h2 className="mt-4 text-lg font-medium text-stone-900">
+                    <h2 className="mt-4 text-lg font-medium text-stone-900 dark:text-stone-100">
                         No repositories connected
                     </h2>
-                    <p className="mt-2 text-sm text-stone-500">
+                    <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
                         Connect your first repository to start getting AI-powered
                         deployment risk analysis on every pull request.
                     </p>
@@ -75,18 +75,18 @@ export default async function DashboardPage() {
                         <Link
                             key={repo.id}
                             href={`/dashboard/repos/${repo.id}`}
-                            className="group rounded-2xl border border-stone-200 bg-white p-6 transition-shadow hover:shadow-md"
+                            className="group rounded-2xl border border-stone-200 bg-white p-6 transition-shadow hover:shadow-md dark:border-stone-800 dark:bg-stone-900"
                         >
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100">
-                                        <GitBranch className="h-5 w-5 text-stone-600" />
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 dark:bg-stone-800">
+                                        <GitBranch className="h-5 w-5 text-stone-600 dark:text-stone-400" />
                                     </div>
                                     <div>
-                                        <p className="font-medium text-stone-900 group-hover:text-violet-600">
+                                        <p className="font-medium text-stone-900 group-hover:text-violet-600 dark:text-stone-100 dark:group-hover:text-violet-400">
                                             {repo.repoFullName}
                                         </p>
-                                        <p className="text-xs text-stone-500">
+                                        <p className="text-xs text-stone-500 dark:text-stone-400">
                                             {repo.indexingStatus === "ready"
                                                 ? "Active"
                                                 : repo.indexingStatus}
@@ -96,8 +96,8 @@ export default async function DashboardPage() {
                                 <span
                                     className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                                         repo.isActive
-                                            ? "bg-emerald-100 text-emerald-700"
-                                            : "bg-stone-100 text-stone-500"
+                                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                            : "bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400"
                                     }`}
                                 >
                                     {repo.isActive ? "Active" : "Inactive"}
@@ -111,36 +111,36 @@ export default async function DashboardPage() {
             {/* Recent reviews */}
             {userReviews.length > 0 && (
                 <div>
-                    <h2 className="mb-4 text-lg font-semibold text-stone-900">
+                    <h2 className="mb-4 text-lg font-semibold text-stone-900 dark:text-stone-100">
                         Recent Reviews
                     </h2>
                     <div className="space-y-3">
                         {userReviews.map((review) => (
                             <div
                                 key={review.id}
-                                className="flex items-center gap-4 rounded-xl border border-stone-200 bg-white px-5 py-4"
+                                className="flex items-center gap-4 rounded-xl border border-stone-200 bg-white px-5 py-4 dark:border-stone-800 dark:bg-stone-900"
                             >
                                 <div
                                     className={`flex h-9 w-9 items-center justify-center rounded-lg ${
                                         review.riskScore >= 7
-                                            ? "bg-red-100 text-red-600"
+                                            ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                                             : review.riskScore >= 4
-                                              ? "bg-amber-100 text-amber-600"
-                                              : "bg-emerald-100 text-emerald-600"
+                                              ? "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+                                              : "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
                                     }`}
                                 >
                                     <ShieldAlert className="h-4 w-4" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-medium text-stone-900">
+                                    <p className="truncate text-sm font-medium text-stone-900 dark:text-stone-100">
                                         {review.prTitle}
                                     </p>
-                                    <p className="text-xs text-stone-500">
+                                    <p className="text-xs text-stone-500 dark:text-stone-400">
                                         {review.repoFullName} #
                                         {review.prNumber}
                                     </p>
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-stone-500">
+                                <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
                                     <Clock3 className="h-3.5 w-3.5" />
                                     {review.createdAt
                                         ? new Date(review.createdAt).toLocaleDateString()
@@ -149,10 +149,10 @@ export default async function DashboardPage() {
                                 <span
                                     className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                                         review.riskScore >= 7
-                                            ? "bg-red-100 text-red-700"
+                                            ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                                             : review.riskScore >= 4
-                                              ? "bg-amber-100 text-amber-700"
-                                              : "bg-emerald-100 text-emerald-700"
+                                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                              : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                                     }`}
                                 >
                                     Risk: {review.riskScore}/10

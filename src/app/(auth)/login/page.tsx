@@ -11,14 +11,14 @@ export default function LoginPage() {
             {/* Logo */}
             <div className="text-center">
                 <Link href="/" className="inline-flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950 text-sm font-semibold text-stone-50 shadow-lg shadow-stone-950/10">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950 text-sm font-semibold text-stone-50 shadow-lg shadow-stone-950/10 dark:bg-stone-50 dark:text-stone-950">
                         DI
                     </div>
                     <div className="text-left">
-                        <p className="text-sm font-semibold tracking-wide text-stone-900">
+                        <p className="text-sm font-semibold tracking-wide text-stone-900 dark:text-stone-100">
                             DeployIQ
                         </p>
-                        <p className="text-xs text-stone-500">
+                        <p className="text-xs text-stone-500 dark:text-stone-400">
                             Deployment risk intelligence
                         </p>
                     </div>
@@ -26,15 +26,15 @@ export default function LoginPage() {
             </div>
 
             {/* Card */}
-            <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm">
+            <div className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-800 dark:bg-stone-900">
                 <div className="mb-6 text-center">
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-violet-100">
-                        <ShieldAlert className="h-6 w-6 text-violet-600" />
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/30">
+                        <ShieldAlert className="h-6 w-6 text-violet-600 dark:text-violet-400" />
                     </div>
-                    <h1 className="text-xl font-semibold text-stone-900">
+                    <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">
                         Sign in to DeployIQ
                     </h1>
-                    <p className="mt-1 text-sm text-stone-500">
+                    <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
                         AI-powered deployment risk analysis for your repositories
                     </p>
                 </div>
@@ -53,7 +53,7 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            <p className="text-center text-xs text-stone-400">
+            <p className="text-center text-xs text-stone-400 dark:text-stone-500">
                 By signing in you agree to our terms of service.
             </p>
         </div>
