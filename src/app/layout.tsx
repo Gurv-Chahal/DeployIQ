@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "DeployIQ | Deployment Risk Intelligence",
   description:
-      "Analyze code changes in full system context and generate structured deployment-risk reports with blast radius, missing checks, and rollout guidance.",
+      "AI-powered deployment risk analysis. Get structured risk reports with blast radius mapping, evidence-backed scoring, and rollout guidance on every pull request.",
 };
 
 export default function RootLayout({
