@@ -15,6 +15,20 @@
       "when": 1774375072853,
       "tag": "0001_rainy_chameleon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774397834955,
+      "tag": "0002_shallow_medusa",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774400140542,
+      "tag": "0003_motionless_maddog",
+      "breakpoints": true
     }
   ]
 }

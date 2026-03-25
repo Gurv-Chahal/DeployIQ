@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
-import Cognito from "next-auth/providers/cognito";
 import GitHub from "next-auth/providers/github";
 import { db } from "@/server/db/client";
 import { users } from "@/server/db/schema";
@@ -8,11 +7,6 @@ import { eq } from "drizzle-orm";
 
 export const authConfig: NextAuthConfig = {
     providers: [
-        Cognito({
-            clientId: process.env.COGNITO_CLIENT_ID!,
-            clientSecret: process.env.COGNITO_CLIENT_SECRET!,
-            issuer: process.env.COGNITO_ISSUER!,
-        }),
         GitHub({
             clientId: process.env.GITHUB_CLIENT_ID!,
             clientSecret: process.env.GITHUB_CLIENT_SECRET!,
@@ -31,60 +25,49 @@ export const authConfig: NextAuthConfig = {
     },
     callbacks: {
         async signIn({ user, account, profile }) {
-            if (!user.email) return false;
+            if (!user.email || account?.provider !== "github") return false;
 
-            if (account?.provider === "cognito") {
-                // Upsert user on Cognito login
-                const existing = await db.query.users.findFirst({
-                    where: eq(users.cognitoSub, account.providerAccountId),
+            const githubId = String((profile as { id?: number })?.id ?? account.providerAccountId);
+            const { encrypt } = await import("@/lib/crypto");
+            const encryptedToken = encrypt(account.access_token ?? "");
+
+            // Upsert: create user if new, update token if existing
+            const existing = await db.query.users.findFirst({
+                where: eq(users.githubId, githubId),
+            });
+
+            if (existing) {
+                await db.update(users).set({
+                    githubAccessToken: encryptedToken,
+                    githubUsername: (profile as { login?: string })?.login ?? null,
+                    email: user.email,
+                    name: user.name ?? null,
+                    updatedAt: new Date(),
+                }).where(eq(users.githubId, githubId));
+            } else {
+                await db.insert(users).values({
+                    githubId,
+                    email: user.email,
+                    name: user.name ?? null,
+                    githubAccessToken: encryptedToken,
+                    githubUsername: (profile as { login?: string })?.login ?? null,
                 });
-
-                if (!existing) {
-                    await db.insert(users).values({
-                        cognitoSub: account.providerAccountId,
-                        email: user.email,
-                        name: user.name ?? null,
-                    });
-                }
-            }
-
-            if (account?.provider === "github") {
-                // This is a "Link GitHub" flow — update the existing user's GitHub token
-                // The user must already be logged in via Cognito for this to work
-                // We store the token on the user record matched by email
-                const { encrypt } = await import("@/lib/crypto");
-                const encryptedToken = encrypt(account.access_token ?? "");
-
-                await db
-                    .update(users)
-                    .set({
-                        githubAccessToken: encryptedToken,
-                        githubUsername: (profile as { login?: string })?.login ?? null,
-                        updatedAt: new Date(),
-                    })
-                    .where(eq(users.email, user.email));
             }
 
             return true;
         },
 
-        async jwt({ token, account }) {
-            // On first sign-in, look up the DB user and attach their ID
-            if (account?.provider === "cognito") {
+        async jwt({ token, account, profile }) {
+            if (account?.provider === "github") {
+                const githubId = String((profile as { id?: number })?.id ?? account.providerAccountId);
                 const dbUser = await db.query.users.findFirst({
-                    where: eq(users.cognitoSub, account.providerAccountId),
+                    where: eq(users.githubId, githubId),
                 });
                 if (dbUser) {
                     token.userId = dbUser.id;
                     token.githubUsername = dbUser.githubUsername;
                 }
             }
-
-            // If GitHub was just linked, refresh GitHub username in token
-            if (account?.provider === "github") {
-                token.githubLinked = true;
-            }
-
             return token;
         },
 
@@ -95,7 +78,6 @@ export const authConfig: NextAuthConfig = {
             if (token.githubUsername) {
                 (session.user as unknown as Record<string, unknown>).githubUsername = token.githubUsername;
             }
-            (session.user as unknown as Record<string, unknown>).githubLinked = !!token.githubLinked || !!token.githubUsername;
             return session;
         },
     },
