@@ -23,21 +23,23 @@ jobs:
           DEPLOYIQ_API_KEY: ${{ secrets.DEPLOYIQ_API_KEY }}
           REPO_FULL_NAME: ${{ github.repository }}
         run: |
-          FILES_JSON=$(find . -type f \
+          echo '[]' > /tmp/files.json
+          find . -type f \
             \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \
                -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \
                -o -name "*.rb" -o -name "*.yml" -o -name "*.yaml" \) \
             ! -path "*/node_modules/*" ! -path "*/.next/*" ! -path "*/dist/*" \
             ! -path "*/.git/*" ! -path "*/build/*" ! -path "*/__pycache__/*" \
-            | head -200 \
+            | head -100 \
             | while read -r file; do
-                content=$(head -500 "$file")
-                jq -n --arg path "$file" --arg content "$content" '{path: $path, content: $content}'
-              done | jq -s '.')
+                jq -n --arg path "$file" --rawfile content "$file" '{path: $path, content: ($content | .[0:5000])}' >> /tmp/file_entries.jsonl
+              done
+          jq -s '.' /tmp/file_entries.jsonl > /tmp/files.json
+          jq -n --arg repo "$REPO_FULL_NAME" --slurpfile files /tmp/files.json '{repoFullName: $repo, files: $files[0]}' > /tmp/index-payload.json
           curl -s -X POST "${DEPLOYIQ_API_URL}/api/index-repo" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${DEPLOYIQ_API_KEY}" \
-            -d "$(jq -n --arg repo "$REPO_FULL_NAME" --argjson files "$FILES_JSON" '{repoFullName: $repo, files: $files}')" || true
+            -d @/tmp/index-payload.json || true
 
       - name: Extract PR diff
         id: diff
