@@ -39,9 +39,20 @@ export const prReviews = pgTable("pr_reviews", {
     repoFullName: text("repo_full_name").notNull(),
     prNumber: integer("pr_number").notNull(),
     prTitle: text("pr_title").notNull(),
+    prBody: text("pr_body"),
     reviewBody: text("review_body").notNull(),
     riskScore: integer("risk_score").notNull(),
+    riskLevel: text("risk_level").notNull().default("Low"),
     riskFactors: jsonb("risk_factors").$type<string[]>().notNull().default([]),
+    reviewData: jsonb("review_data").$type<{
+        blastRadius: { filesAffected: number; servicesAffected: string[] };
+        deploymentRecommendations: string[];
+        codeObservations: string[];
+    }>(),
+    retrievedContext: jsonb("retrieved_context").$type<{
+        relevantCode: Array<{ content: string; filePath: string; score: number }>;
+        pastReviews: Array<{ content: string; prTitle: string; score: number }>;
+    }>(),
     repositoryId: integer("repository_id").references(() => repositories.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
