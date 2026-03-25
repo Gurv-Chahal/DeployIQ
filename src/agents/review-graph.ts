@@ -90,7 +90,8 @@ async function retrieveCtx(
         return { retrievedContext: context };
     } catch (err) {
         // Non-fatal: proceed without context if retrieval fails
-        console.warn("Retrieval failed, proceeding without context:", err);
+        const errMsg = err instanceof Error ? `${err.message}\n${err.stack}` : String(err);
+        console.error("Retrieval failed, proceeding without context:", errMsg);
         return {
             retrievedContext: { relevantCode: [], pastReviews: [] },
         };
