@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth";
 
 const metrics = [
   { label: "Blast Radius", value: "9", unit: "touchpoints mapped", icon: Waypoints },
@@ -161,7 +162,8 @@ const comparisonRows = [
   { feature: "Learns from your repository over time", deployiq: true, prBot: false },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
   return (
     <main className="relative min-h-screen overflow-hidden bg-stone-50 text-stone-950">
       {/* Background blurs */}
@@ -191,12 +193,23 @@ export default function Home() {
             <a href="#report-preview" className="transition-colors hover:text-stone-950">Report Preview</a>
           </nav>
 
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <a href="#report-preview">
-              See a Report
-              <ArrowRight className="size-3.5" />
-            </a>
-          </Button>
+          <div className="hidden items-center gap-3 sm:flex">
+            <Button asChild size="sm" variant="outline">
+              <a href="#report-preview">
+                See a Report
+                <ArrowRight className="size-3.5" />
+              </a>
+            </Button>
+            {session?.user ? (
+              <Button asChild size="sm">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <Button asChild size="sm">
+                <Link href="/login">Sign In</Link>
+              </Button>
+            )}
+          </div>
         </header>
 
         {/* Hero */}
