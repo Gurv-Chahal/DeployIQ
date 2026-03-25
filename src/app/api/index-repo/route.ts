@@ -50,6 +50,17 @@ export async function POST(req: NextRequest) {
             body.files
         );
 
+        // Update repository indexing status
+        if (repo) {
+            await db
+                .update(repositories)
+                .set({
+                    indexingStatus: "indexed",
+                    lastIndexedAt: new Date(),
+                })
+                .where(eq(repositories.id, repo.id));
+        }
+
         return NextResponse.json({
             ok: true,
             indexed: result.indexed,
