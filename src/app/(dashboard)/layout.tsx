@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { DashboardNav } from "@/components/dashboard-nav";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function DashboardLayout({
     children,
@@ -15,23 +16,26 @@ export default async function DashboardLayout({
     }
 
     return (
-        <div className="min-h-screen bg-stone-50">
+        <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
             {/* Top nav */}
-            <header className="border-b border-stone-200 bg-white">
+            <header className="border-b border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
                     <Link href="/dashboard" className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-stone-950 text-xs font-semibold text-stone-50">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-stone-950 text-xs font-semibold text-stone-50 dark:bg-stone-50 dark:text-stone-950">
                             DI
                         </div>
-                        <span className="text-sm font-semibold text-stone-900">
+                        <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">
                             DeployIQ
                         </span>
                     </Link>
 
-                    <DashboardNav
-                        userName={session.user.name ?? session.user.email ?? "User"}
-                        userEmail={session.user.email ?? ""}
-                    />
+                    <div className="flex items-center gap-2">
+                        <ThemeToggle />
+                        <DashboardNav
+                            userName={session.user.name ?? session.user.email ?? "User"}
+                            userEmail={session.user.email ?? ""}
+                        />
+                    </div>
                 </div>
             </header>
 
