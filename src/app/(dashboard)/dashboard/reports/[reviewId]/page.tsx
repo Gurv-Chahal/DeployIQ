@@ -88,10 +88,8 @@ export default async function ReportDetailPage({ params }: Props) {
         review.riskScore >= 4 ? "Medium" : "Low"
     );
 
-    // Calculate confidence based on available context
     const codeMatches = context?.relevantCode?.length ?? 0;
     const reviewMatches = context?.pastReviews?.length ?? 0;
-    const confidence = Math.min(98, 70 + codeMatches * 2 + reviewMatches * 3);
 
     return (
         <div className="mx-auto max-w-4xl space-y-6">
@@ -143,7 +141,7 @@ export default async function ReportDetailPage({ params }: Props) {
                     <div className={`shrink-0 rounded-2xl border ${riskColor.border} ${riskColor.bg} px-4 py-3 text-right`}>
                         <p className={`text-xs font-medium tracking-[0.16em] uppercase ${riskColor.text}`}>Risk</p>
                         <p className={`mt-1 text-3xl font-semibold ${riskColor.label}`}>{review.riskScore} / 10</p>
-                        <p className={`text-xs ${riskColor.text} opacity-70`}>{riskLevel} · {confidence}% confidence</p>
+                        <p className={`text-xs ${riskColor.text} opacity-70`}>{riskLevel}</p>
                     </div>
                 </div>
 

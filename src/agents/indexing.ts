@@ -8,6 +8,13 @@ export async function indexRepositoryFiles(
 ): Promise<{ indexed: number }> {
     const store = await getCodeChunksStore();
 
+    // Clear existing chunks for this repo to avoid stale/duplicate data
+    try {
+        await store.delete({ filter: { repoFullName } });
+    } catch {
+        // Collection might be empty or filter not supported — continue
+    }
+
     // Chunk all files
     const docs = await chunkFiles(files);
 
