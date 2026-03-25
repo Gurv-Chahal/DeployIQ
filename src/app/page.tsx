@@ -28,7 +28,7 @@ import { auth } from "@/lib/auth";
 const metrics = [
   { label: "Blast Radius", value: "9", unit: "touchpoints mapped", icon: Waypoints },
   { label: "AI Context", value: "15", unit: "code sections analyzed", icon: Search },
-  { label: "Risk Score", value: "High", unit: "confidence 92%", icon: ShieldAlert },
+  { label: "Risk Score", value: "High", unit: "7 / 10", icon: ShieldAlert },
 ];
 
 const capabilities = [
@@ -42,7 +42,7 @@ const capabilities = [
   {
     title: "Evidence-Backed Risk Scoring",
     description:
-      "Ties risk calls to test coverage, past incidents, deploy history, and known weak spots. Scores 1–10 with confidence levels.",
+      "Ties risk calls to test coverage, past incidents, deploy history, and known weak spots. Scores 1–10 with clear risk levels.",
     icon: BarChart3,
     accent: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
   },
@@ -63,7 +63,7 @@ const capabilities = [
   {
     title: "Review History",
     description:
-        "Stores every PR review on your account so you can look back anytime. More functionality such as risk reports coming soon.",
+        "Stores every PR review on your account with full risk reports you can revisit anytime — track patterns across deployments.",
     icon: Database,
     accent: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
   },
@@ -464,7 +464,7 @@ export default async function Home() {
                 <div className="shrink-0 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-right dark:border-orange-400/30 dark:bg-orange-500/10">
                   <p className="text-xs font-medium tracking-[0.16em] text-orange-600 uppercase dark:text-orange-300">Risk</p>
                   <p className="mt-1 text-3xl font-semibold text-orange-700 dark:text-orange-100">7 / 10</p>
-                  <p className="text-xs text-orange-600 opacity-70 dark:text-orange-300">High · 92% confidence</p>
+                  <p className="text-xs text-orange-600 opacity-70 dark:text-orange-300">High</p>
                 </div>
               </div>
 
