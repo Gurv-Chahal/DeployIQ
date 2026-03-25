@@ -40,7 +40,7 @@ const capabilities = [
     accent: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
   },
   {
-    title: "Evidence-Backed Risk Scoring",
+    title: "Evidence-Based Risk Scoring",
     description:
       "Ties risk calls to test coverage, past incidents, deploy history, and known weak spots. Scores 1–10 with clear risk levels.",
     icon: BarChart3,
