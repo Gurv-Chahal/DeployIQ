@@ -9,6 +9,7 @@ import {
     ShieldAlert,
     Waypoints,
     Brain,
+    CircleHelp,
     ListChecks,
     Clock3,
     Search,
@@ -75,6 +76,30 @@ function getStepColor(index: number) {
         { bg: "bg-rose-50 dark:bg-rose-500/10", label: "text-rose-700 dark:text-rose-300", title: "text-rose-950 dark:text-rose-50", detail: "text-rose-600/80 dark:text-rose-300/60" },
     ];
     return colors[index % colors.length];
+}
+
+function SectionHelp({
+    title,
+    description,
+}: {
+    title: string;
+    description: string;
+}) {
+    return (
+        <div className="group/help absolute top-4 right-4">
+            <button
+                type="button"
+                aria-label={`What ${title} means`}
+                className="inline-flex size-7 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-400 transition hover:text-stone-700 focus:outline-none focus:ring-2 focus:ring-stone-300 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-500 dark:hover:text-stone-200 dark:focus:ring-stone-600"
+            >
+                <CircleHelp className="size-4" />
+            </button>
+            <div className="pointer-events-none absolute top-9 right-0 z-10 w-64 rounded-xl border border-stone-200 bg-white px-3 py-2 text-left opacity-0 shadow-lg transition group-hover/help:opacity-100 group-focus-within/help:opacity-100 dark:border-stone-700 dark:bg-stone-900">
+                <p className="text-xs font-medium text-stone-900 dark:text-stone-100">{title}</p>
+                <p className="mt-1 text-xs leading-5 text-stone-600 dark:text-stone-400">{description}</p>
+            </div>
+        </div>
+    );
 }
 
 export default async function ReportDetailPage({ params }: Props) {
@@ -186,7 +211,11 @@ export default async function ReportDetailPage({ params }: Props) {
                 {/* Report body grid */}
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
                     {/* Blast Radius */}
-                    <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                    <section className="relative rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                        <SectionHelp
+                            title="Blast Radius"
+                            description="Shows which services, surfaces, or files this PR is most likely to affect so you can judge how wide the change reaches."
+                        />
                         <div className="flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-stone-300">
                             <Waypoints className="size-4 text-sky-600 dark:text-sky-300" />
                             Blast Radius
@@ -210,7 +239,11 @@ export default async function ReportDetailPage({ params }: Props) {
                     </section>
 
                     {/* System Context */}
-                    <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                    <section className="relative rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                        <SectionHelp
+                            title="System Context"
+                            description="Shows related code and past review history retrieved for this PR so the report reflects surrounding system behavior, not only the diff."
+                        />
                         <div className="flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-stone-300">
                             <Brain className="size-4 text-violet-600 dark:text-violet-300" />
                             System Context
@@ -275,7 +308,11 @@ export default async function ReportDetailPage({ params }: Props) {
                     </section>
 
                     {/* Evidence Summary */}
-                    <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                    <section className="relative rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                        <SectionHelp
+                            title="Evidence Summary"
+                            description="Summarizes the main code observations and risk factors that drove the risk score for this deployment."
+                        />
                         <div className="flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-stone-300">
                             <ListChecks className="size-4 text-emerald-600 dark:text-emerald-300" />
                             Evidence Summary
@@ -308,7 +345,11 @@ export default async function ReportDetailPage({ params }: Props) {
                     </section>
 
                     {/* Rollout Guidance */}
-                    <section className="rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                    <section className="relative rounded-2xl border border-stone-200 bg-stone-50 p-5 dark:border-stone-800 dark:bg-stone-800/50">
+                        <SectionHelp
+                            title="Rollout Guidance"
+                            description="Lists the safest validation and rollout steps to follow when shipping this change to reduce deployment risk."
+                        />
                         <div className="flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-stone-300">
                             <ShieldAlert className="size-4 text-orange-600 dark:text-orange-300" />
                             Rollout Guidance
