@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 const emptySubscribe = () => () => {};
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const currentTheme = resolvedTheme ?? "light";
 
   if (!mounted) {
     return (
       <Button variant="ghost" size="icon" className="size-9">
-        <Sun className="size-4" />
+        <Moon className="size-4" />
       </Button>
     );
   }
@@ -24,9 +25,9 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       className="size-9"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
     >
-      {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      {currentTheme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </Button>
   );
 }
