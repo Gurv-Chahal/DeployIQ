@@ -50,8 +50,32 @@ export const prReviews = pgTable("pr_reviews", {
         codeObservations: string[];
     }>(),
     retrievedContext: jsonb("retrieved_context").$type<{
-        relevantCode: Array<{ content: string; filePath: string; score: number }>;
-        pastReviews: Array<{ content: string; prTitle: string; score: number }>;
+        relevantCode: Array<{
+            content: string;
+            filePath: string;
+            relevance?: number;
+            score?: number;
+        }>;
+        pastReviews: Array<{
+            content: string;
+            prTitle: string;
+            relevance?: number;
+            score?: number;
+        }>;
+        meta: {
+            status: "ok" | "empty" | "degraded";
+            codeMatchCount: number;
+            reviewMatchCount: number;
+            codeError: string | null;
+            reviewError: string | null;
+        };
+    }>(),
+    retrievalMeta: jsonb("retrieval_meta").$type<{
+        status: "ok" | "empty" | "degraded";
+        codeMatchCount: number;
+        reviewMatchCount: number;
+        codeError: string | null;
+        reviewError: string | null;
     }>(),
     repositoryId: integer("repository_id").references(() => repositories.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

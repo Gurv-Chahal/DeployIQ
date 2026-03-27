@@ -1,4 +1,5 @@
 import { ChatPromptTemplate } from "@langchain/core/prompts";
+import type { RetrievalMeta } from "./types";
 
 export const SYSTEM_PROMPT = `You are DeployIQ, a deployment risk analysis agent. You analyze code changes in full system context — not just the diff — to produce structured risk reports.
 
@@ -91,6 +92,7 @@ export function formatReviewMarkdown(review: {
     blastRadius: { filesAffected: number; servicesAffected: string[] };
     deploymentRecommendations: string[];
     codeObservations: string[];
+    retrieval?: RetrievalMeta;
 }): string {
     const riskEmoji =
         review.riskLevel === "Critical"
@@ -101,11 +103,16 @@ export function formatReviewMarkdown(review: {
                 ? "🟡"
                 : "🟢";
 
+    const retrievalWarning =
+        review.retrieval?.status === "degraded"
+            ? `> Context retrieval degraded for this run. DeployIQ generated the report with partial or unavailable repository context.\n\n`
+            : "";
+
     return `## DeployIQ Risk Assessment
 
 ${riskEmoji} **Risk Score: ${review.riskScore}/10** (${review.riskLevel})
 
-### Risk Factors
+${retrievalWarning}### Risk Factors
 ${review.riskFactors.map((f) => `- ${f}`).join("\n")}
 
 ### Blast Radius

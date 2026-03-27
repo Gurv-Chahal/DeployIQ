@@ -1,64 +1,200 @@
 import { getCodeChunksStore, getReviewHistoryStore } from "./vectorstore";
-import type { RetrievedContext } from "./types";
+import {
+    createEmptyRetrievedContext,
+    type RetrievalStatus,
+    type RetrievedCodeMatch,
+    type RetrievedContext,
+    type RetrievedReviewMatch,
+} from "./types";
 
-export async function retrieveContext(
-    query: string,
-    repoFullName: string
-): Promise<RetrievedContext> {
+const CODE_MATCH_LIMIT = 10;
+const REVIEW_MATCH_LIMIT = 5;
+
+type SearchDocument = {
+    pageContent: string;
+    metadata: Record<string, unknown>;
+};
+
+type SimilarityStore = Pick<
+    Awaited<ReturnType<typeof getCodeChunksStore>>,
+    "similaritySearchWithScore"
+>;
+
+type SearchResult = [SearchDocument, number];
+
+export interface RetrievalStores {
+    codeStore: SimilarityStore;
+    reviewStore: SimilarityStore;
+}
+
+export function normalizeDistanceToRelevance(distance: number): number {
+    const sanitizedDistance = Number.isFinite(distance)
+        ? Math.max(distance, 0)
+        : 0;
+
+    return Number((1 / (1 + sanitizedDistance)).toFixed(4));
+}
+
+export function getRetrievalConfigError(): string | null {
+    if (process.env.NODE_ENV === "production" && !process.env.CHROMA_URL) {
+        return "CHROMA_URL is not configured for production retrieval.";
+    }
+
+    return null;
+}
+
+function toErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message;
+    }
+
+    return String(error);
+}
+
+function getRetrievalStatus(
+    relevantCode: RetrievedCodeMatch[],
+    pastReviews: RetrievedReviewMatch[],
+    codeError: string | null,
+    reviewError: string | null
+): RetrievalStatus {
+    if (codeError || reviewError) {
+        return "degraded";
+    }
+
+    if (relevantCode.length > 0 || pastReviews.length > 0) {
+        return "ok";
+    }
+
+    return "empty";
+}
+
+function buildContext(
+    relevantCode: RetrievedCodeMatch[],
+    pastReviews: RetrievedReviewMatch[],
+    codeError: string | null,
+    reviewError: string | null
+): RetrievedContext {
+    const status = getRetrievalStatus(
+        relevantCode,
+        pastReviews,
+        codeError,
+        reviewError
+    );
+
+    return {
+        relevantCode,
+        pastReviews,
+        meta: {
+            status,
+            codeMatchCount: relevantCode.length,
+            reviewMatchCount: pastReviews.length,
+            codeError,
+            reviewError,
+        },
+    };
+}
+
+function logRetrievedContext(repoFullName: string, context: RetrievedContext) {
+    const payload = {
+        repoFullName,
+        status: context.meta.status,
+        codeMatchCount: context.meta.codeMatchCount,
+        reviewMatchCount: context.meta.reviewMatchCount,
+        codeError: context.meta.codeError,
+        reviewError: context.meta.reviewError,
+    };
+
+    if (context.meta.status === "degraded") {
+        console.warn("Context retrieval degraded", payload);
+        return;
+    }
+
+    console.info("Context retrieval completed", payload);
+}
+
+function mapCodeResults(results: SearchResult[]): RetrievedCodeMatch[] {
+    return results.map(([doc, distance]) => ({
+        content: doc.pageContent,
+        filePath: (doc.metadata.filePath as string) ?? "unknown",
+        relevance: normalizeDistanceToRelevance(distance),
+    }));
+}
+
+function mapReviewResults(results: SearchResult[]): RetrievedReviewMatch[] {
+    return results.map(([doc, distance]) => ({
+        content: doc.pageContent,
+        prTitle: (doc.metadata.prTitle as string) ?? "unknown",
+        relevance: normalizeDistanceToRelevance(distance),
+    }));
+}
+
+async function resolveStores(): Promise<RetrievalStores> {
     const [codeStore, reviewStore] = await Promise.all([
         getCodeChunksStore(),
         getReviewHistoryStore(),
     ]);
 
-    // Retrieve relevant code chunks using MMR for diversity
-    const codeRetriever = codeStore.asRetriever({
-        searchType: "mmr",
-        k: 10,
-        searchKwargs: {
-            fetchK: 20,
-            lambda: 0.7, // balance between relevance and diversity
-        },
-        filter: { repoFullName },
-    });
+    return { codeStore, reviewStore };
+}
 
-    // Retrieve past reviews for similar changes
-    const reviewRetriever = reviewStore.asRetriever({
-        searchType: "mmr",
-        k: 5,
-        searchKwargs: {
-            fetchK: 10,
-            lambda: 0.7,
-        },
-        filter: { repoFullName },
-    });
-
-    const [codeResults, reviewResults] = await Promise.allSettled([
-        codeRetriever.invoke(query),
-        reviewRetriever.invoke(query),
-    ]);
-
-    const codeDocs = codeResults.status === "fulfilled" ? codeResults.value : [];
-    const reviewDocs = reviewResults.status === "fulfilled" ? reviewResults.value : [];
-
-    if (codeResults.status === "rejected") {
-        console.error("Code retrieval failed:", codeResults.reason);
-    }
-    if (reviewResults.status === "rejected") {
-        console.error("Review retrieval failed:", reviewResults.reason);
+export async function retrieveContext(
+    query: string,
+    repoFullName: string,
+    stores?: RetrievalStores
+): Promise<RetrievedContext> {
+    const configError = getRetrievalConfigError();
+    if (configError) {
+        const context = buildContext([], [], configError, configError);
+        logRetrievedContext(repoFullName, context);
+        return context;
     }
 
-    console.log(`Retrieved ${codeDocs.length} code chunks, ${reviewDocs.length} past reviews for ${repoFullName}`);
+    const emptyContext = createEmptyRetrievedContext();
 
-    return {
-        relevantCode: codeDocs.map((doc) => ({
-            content: doc.pageContent,
-            filePath: (doc.metadata.filePath as string) ?? "unknown",
-            score: (doc.metadata.score as number) ?? 0,
-        })),
-        pastReviews: reviewDocs.map((doc) => ({
-            content: doc.pageContent,
-            prTitle: (doc.metadata.prTitle as string) ?? "unknown",
-            score: (doc.metadata.score as number) ?? 0,
-        })),
-    };
+    try {
+        const { codeStore, reviewStore } = stores ?? (await resolveStores());
+        const [codeResults, reviewResults] = await Promise.allSettled([
+            codeStore.similaritySearchWithScore(query, CODE_MATCH_LIMIT, {
+                repoFullName,
+            }),
+            reviewStore.similaritySearchWithScore(query, REVIEW_MATCH_LIMIT, {
+                repoFullName,
+            }),
+        ]);
+
+        const relevantCode =
+            codeResults.status === "fulfilled"
+                ? mapCodeResults(codeResults.value)
+                : emptyContext.relevantCode;
+        const pastReviews =
+            reviewResults.status === "fulfilled"
+                ? mapReviewResults(reviewResults.value)
+                : emptyContext.pastReviews;
+        const codeError =
+            codeResults.status === "rejected"
+                ? toErrorMessage(codeResults.reason)
+                : null;
+        const reviewError =
+            reviewResults.status === "rejected"
+                ? toErrorMessage(reviewResults.reason)
+                : null;
+
+        const context = buildContext(
+            relevantCode,
+            pastReviews,
+            codeError,
+            reviewError
+        );
+
+        logRetrievedContext(repoFullName, context);
+
+        return context;
+    } catch (error) {
+        const errorMessage = toErrorMessage(error);
+        const context = buildContext([], [], errorMessage, errorMessage);
+
+        logRetrievedContext(repoFullName, context);
+
+        return context;
+    }
 }

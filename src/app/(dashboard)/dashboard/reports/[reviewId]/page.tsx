@@ -19,6 +19,26 @@ type Props = {
     params: Promise<{ reviewId: string }>;
 };
 
+function getMatchRelevance(match: { relevance?: number; score?: number }) {
+    return match.relevance ?? match.score ?? 0;
+}
+
+function getRetrievalMeta(review: (typeof prReviews.$inferSelect)) {
+    const codeMatches = review.retrievedContext?.relevantCode?.length ?? 0;
+    const reviewMatches = review.retrievedContext?.pastReviews?.length ?? 0;
+
+    return (
+        review.retrievalMeta ??
+        review.retrievedContext?.meta ?? {
+            status: codeMatches > 0 || reviewMatches > 0 ? "ok" : "empty",
+            codeMatchCount: codeMatches,
+            reviewMatchCount: reviewMatches,
+            codeError: null,
+            reviewError: null,
+        }
+    );
+}
+
 function getRiskColor(score: number) {
     if (score >= 9) return {
         border: "border-red-200 dark:border-red-400/30",
@@ -82,6 +102,7 @@ export default async function ReportDetailPage({ params }: Props) {
     const riskColor = getRiskColor(review.riskScore);
     const reviewData = review.reviewData;
     const context = review.retrievedContext;
+    const retrievalMeta = getRetrievalMeta(review);
     const riskLevel = review.riskLevel ?? (
         review.riskScore >= 9 ? "Critical" :
         review.riskScore >= 7 ? "High" :
@@ -90,6 +111,7 @@ export default async function ReportDetailPage({ params }: Props) {
 
     const codeMatches = context?.relevantCode?.length ?? 0;
     const reviewMatches = context?.pastReviews?.length ?? 0;
+    const retrievalDegraded = retrievalMeta.status === "degraded";
 
     return (
         <div className="mx-auto max-w-4xl space-y-6">
@@ -136,6 +158,22 @@ export default async function ReportDetailPage({ params }: Props) {
                                     </span>
                                 </>
                             )}
+                            {retrievalMeta.status !== "ok" && (
+                                <>
+                                    <span className="text-stone-300 dark:text-stone-600">·</span>
+                                    <span
+                                        className={`font-medium ${
+                                            retrievalDegraded
+                                                ? "text-orange-600 dark:text-orange-400"
+                                                : "text-stone-500 dark:text-stone-400"
+                                        }`}
+                                    >
+                                        {retrievalDegraded
+                                            ? "Context degraded"
+                                            : "No context matches"}
+                                    </span>
+                                </>
+                            )}
                         </div>
                     </div>
                     <div className={`shrink-0 rounded-2xl border ${riskColor.border} ${riskColor.bg} px-4 py-3 text-right`}>
@@ -178,13 +216,32 @@ export default async function ReportDetailPage({ params }: Props) {
                             System Context
                         </div>
                         <div className="mt-4 space-y-3 text-sm">
+                            {retrievalDegraded && (
+                                <div className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-3 text-orange-900 dark:border-orange-400/30 dark:bg-orange-500/10 dark:text-orange-100">
+                                    <p className="font-medium">Context retrieval degraded</p>
+                                    <p className="mt-1 text-sm text-orange-800/80 dark:text-orange-200/80">
+                                        DeployIQ generated this report with partial or unavailable repository context for this run.
+                                    </p>
+                                    {retrievalMeta.codeError && (
+                                        <p className="mt-2 text-xs text-orange-800/75 dark:text-orange-200/75">
+                                            Code search: {retrievalMeta.codeError}
+                                        </p>
+                                    )}
+                                    {retrievalMeta.reviewError && (
+                                        <p className="mt-1 text-xs text-orange-800/75 dark:text-orange-200/75">
+                                            Review history search: {retrievalMeta.reviewError}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
                             {context?.relevantCode && context.relevantCode.length > 0 ? (
                                 context.relevantCode.slice(0, 3).map((chunk, i) => (
                                     <div key={i} className="rounded-xl bg-white px-3 py-3 dark:bg-stone-800">
                                         <div className="flex items-center justify-between">
                                             <p className="font-medium text-stone-900 dark:text-stone-100">Codebase Match</p>
                                             <span className="text-xs text-violet-600 dark:text-violet-400">
-                                                {chunk.score?.toFixed(2)} relevance
+                                                {getMatchRelevance(chunk).toFixed(2)} relevance
                                             </span>
                                         </div>
                                         <p className="mt-1 font-mono text-xs text-stone-500 dark:text-stone-500">{chunk.filePath}</p>
@@ -194,7 +251,11 @@ export default async function ReportDetailPage({ params }: Props) {
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-stone-500 dark:text-stone-400">No codebase context retrieved.</p>
+                                <p className="text-stone-500 dark:text-stone-400">
+                                    {retrievalDegraded
+                                        ? "Context retrieval failed for this run."
+                                        : "No matching codebase context found for this PR."}
+                                </p>
                             )}
 
                             {context?.pastReviews && context.pastReviews.length > 0 && (

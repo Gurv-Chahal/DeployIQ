@@ -6,6 +6,47 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus, GitBranch, ShieldAlert, Clock3 } from "lucide-react";
 
+function formatIndexingStatus(status: string) {
+    switch (status) {
+        case "indexed":
+            return "Indexed";
+        case "indexing":
+            return "Indexing";
+        case "failed":
+            return "Failed";
+        default:
+            return "Pending";
+    }
+}
+
+function getRetrievalSummary(review: (typeof prReviews.$inferSelect)) {
+    const status =
+        review.retrievalMeta?.status ??
+        review.retrievedContext?.meta?.status ??
+        (review.retrievedContext?.relevantCode?.length ||
+        review.retrievedContext?.pastReviews?.length
+            ? "ok"
+            : "empty");
+
+    if (status === "degraded") {
+        return {
+            label: "Context degraded",
+            className:
+                "text-orange-600 dark:text-orange-400",
+        };
+    }
+
+    if (status === "empty") {
+        return {
+            label: "No context matches",
+            className:
+                "text-stone-500 dark:text-stone-400",
+        };
+    }
+
+    return null;
+}
+
 export default async function DashboardPage() {
     const session = await auth();
     const userId = Number(session?.user?.id);
@@ -87,9 +128,9 @@ export default async function DashboardPage() {
                                             {repo.repoFullName}
                                         </p>
                                         <p className="text-xs text-stone-500 dark:text-stone-400">
-                                            {repo.indexingStatus === "ready"
-                                                ? "Active"
-                                                : repo.indexingStatus}
+                                            {formatIndexingStatus(
+                                                repo.indexingStatus
+                                            )}
                                         </p>
                                     </div>
                                 </div>
@@ -140,6 +181,22 @@ export default async function DashboardPage() {
                                         {review.repoFullName} #
                                         {review.prNumber}
                                     </p>
+                                    {(() => {
+                                        const retrievalSummary =
+                                            getRetrievalSummary(review);
+
+                                        if (!retrievalSummary) {
+                                            return null;
+                                        }
+
+                                        return (
+                                            <p
+                                                className={`mt-1 text-xs ${retrievalSummary.className}`}
+                                            >
+                                                {retrievalSummary.label}
+                                            </p>
+                                        );
+                                    })()}
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
                                     <Clock3 className="h-3.5 w-3.5" />
