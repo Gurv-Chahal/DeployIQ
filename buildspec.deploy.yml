@@ -39,10 +39,35 @@ phases:
       # Wait for ECS to stabilize, then trigger RAG re-index
       - sleep 60
       - |
-        curl -s -X POST "${DEPLOYIQ_API_URL}/api/index-repo" \
+        : > /tmp/deployiq-index-file-entries.jsonl
+        git ls-files | grep -E '\.(ts|tsx|js|jsx|json|yml|yaml)$|(^|/)Dockerfile$' | while read -r file; do
+          jq -n --arg path "$file" --rawfile content "$file" '{path: $path, content: ($content | .[0:5000])}' >> /tmp/deployiq-index-file-entries.jsonl
+        done
+        if [ -s /tmp/deployiq-index-file-entries.jsonl ]; then
+          jq -s '.' /tmp/deployiq-index-file-entries.jsonl > /tmp/deployiq-files.json
+        else
+          echo '[]' > /tmp/deployiq-files.json
+        fi
+        jq -n --arg repo "Gurv-Chahal/deployiq" --slurpfile files /tmp/deployiq-files.json '{repoFullName: $repo, files: $files[0]}' > /tmp/deployiq-index-payload.json
+        set +e
+        RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST "${DEPLOYIQ_API_URL}/api/index-repo" \
           -H "Content-Type: application/json" \
-          -H "x-api-key: ${DEPLOYIQ_API_KEY}" \
-          -d '{"owner":"Gurv-Chahal","repo":"deployiq"}' || echo "Re-index trigger failed (non-fatal)"
+          -H "Authorization: Bearer ${DEPLOYIQ_API_KEY}" \
+          -d @/tmp/deployiq-index-payload.json)
+        CURL_EXIT=$?
+        set -e
+        if [ "$CURL_EXIT" -ne 0 ]; then
+          echo "Re-index trigger failed (non-fatal): curl exited with status ${CURL_EXIT}"
+        else
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Re-index trigger failed (non-fatal): HTTP $HTTP_CODE"
+            echo "$BODY"
+          else
+            echo "$BODY"
+          fi
+        fi
 
 artifacts:
   files:

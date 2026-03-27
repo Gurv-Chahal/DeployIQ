@@ -10,7 +10,12 @@ import {
 } from "./prompts";
 import { db } from "@/server/db/client";
 import { prReviews } from "@/server/db/schema";
-import type { ReviewRequest, ReviewResponse, RetrievedContext } from "./types";
+import {
+    createEmptyRetrievedContext,
+    type ReviewRequest,
+    type ReviewResponse,
+    type RetrievedContext,
+} from "./types";
 
 // Define the graph state using LangGraph Annotation
 // reducer: (_, b) => b means "replace old value with new value"
@@ -26,7 +31,7 @@ const ReviewState = Annotation.Root({
     }),
     retrievedContext: Annotation<RetrievedContext>({
         reducer: (_, b) => b,
-        default: () => ({ relevantCode: [], pastReviews: [] }),
+        default: () => createEmptyRetrievedContext(),
     }),
     review: Annotation<ReviewResponse | null>({
         reducer: (_, b) => b,
@@ -89,11 +94,21 @@ async function retrieveCtx(
 
         return { retrievedContext: context };
     } catch (err) {
-        // Non-fatal: proceed without context if retrieval fails
-        const errMsg = err instanceof Error ? `${err.message}\n${err.stack}` : String(err);
-        console.error("Retrieval failed, proceeding without context:", errMsg);
+        const errMsg =
+            err instanceof Error ? `${err.message}\n${err.stack}` : String(err);
+        console.error("Unexpected retrieval failure:", errMsg);
+
+        const degradedContext = createEmptyRetrievedContext();
+        degradedContext.meta = {
+            status: "degraded",
+            codeMatchCount: 0,
+            reviewMatchCount: 0,
+            codeError: errMsg,
+            reviewError: errMsg,
+        };
+
         return {
-            retrievedContext: { relevantCode: [], pastReviews: [] },
+            retrievedContext: degradedContext,
         };
     }
 }
@@ -127,14 +142,21 @@ async function generate(
             .replace(/```\n?/g, "")
             .trim();
 
-        const parsed = JSON.parse(jsonStr) as Omit<ReviewResponse, "reviewBody">;
+        const parsed = JSON.parse(jsonStr) as Omit<
+            ReviewResponse,
+            "reviewBody" | "retrieval"
+        >;
 
-        const reviewBody = formatReviewMarkdown(parsed);
+        const reviewBody = formatReviewMarkdown({
+            ...parsed,
+            retrieval: retrievedContext.meta,
+        });
 
         return {
             review: {
                 ...parsed,
                 reviewBody,
+                retrieval: retrievedContext.meta,
             },
         };
     } catch (err) {
@@ -171,6 +193,7 @@ async function store(
                 codeObservations: review.codeObservations,
             },
             retrievedContext: retrievedContext,
+            retrievalMeta: retrievedContext.meta,
             repositoryId: state.repositoryId,
         });
 

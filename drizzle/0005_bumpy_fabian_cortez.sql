@@ -1,0 +1,1 @@
+ALTER TABLE "pr_reviews" ADD COLUMN "retrieval_meta" jsonb;

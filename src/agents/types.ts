@@ -9,6 +9,16 @@ export interface ReviewRequest {
     headBranch: string;
 }
 
+export type RetrievalStatus = "ok" | "empty" | "degraded";
+
+export interface RetrievalMeta {
+    status: RetrievalStatus;
+    codeMatchCount: number;
+    reviewMatchCount: number;
+    codeError: string | null;
+    reviewError: string | null;
+}
+
 export interface ReviewResponse {
     riskScore: number;
     riskLevel: "Low" | "Medium" | "High" | "Critical";
@@ -20,6 +30,7 @@ export interface ReviewResponse {
     deploymentRecommendations: string[];
     codeObservations: string[];
     reviewBody: string;
+    retrieval?: RetrievalMeta;
 }
 
 export interface CodeChunk {
@@ -29,9 +40,40 @@ export interface CodeChunk {
     language: string;
 }
 
+export interface RetrievedCodeMatch {
+    content: string;
+    filePath: string;
+    relevance?: number;
+    score?: number;
+}
+
+export interface RetrievedReviewMatch {
+    content: string;
+    prTitle: string;
+    relevance?: number;
+    score?: number;
+}
+
 export interface RetrievedContext {
-    relevantCode: Array<{ content: string; filePath: string; score: number }>;
-    pastReviews: Array<{ content: string; prTitle: string; score: number }>;
+    relevantCode: RetrievedCodeMatch[];
+    pastReviews: RetrievedReviewMatch[];
+    meta: RetrievalMeta;
+}
+
+export const EMPTY_RETRIEVAL_META: RetrievalMeta = {
+    status: "empty",
+    codeMatchCount: 0,
+    reviewMatchCount: 0,
+    codeError: null,
+    reviewError: null,
+};
+
+export function createEmptyRetrievedContext(): RetrievedContext {
+    return {
+        relevantCode: [],
+        pastReviews: [],
+        meta: { ...EMPTY_RETRIEVAL_META },
+    };
 }
 
 // LangGraph state

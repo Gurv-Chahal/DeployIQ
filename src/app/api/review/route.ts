@@ -51,6 +51,22 @@ export async function POST(req: NextRequest) {
 
         const review = await runReview(body, repositoryId);
 
+        if (review.retrieval?.status === "degraded") {
+            console.warn("Review generated with degraded retrieval", {
+                repoFullName: body.repoFullName,
+                prNumber: body.prNumber,
+                repositoryId,
+                retrieval: review.retrieval,
+            });
+        } else {
+            console.info("Review generated", {
+                repoFullName: body.repoFullName,
+                prNumber: body.prNumber,
+                repositoryId,
+                retrievalStatus: review.retrieval?.status ?? "unknown",
+            });
+        }
+
         return NextResponse.json({
             ok: true,
             review,

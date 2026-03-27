@@ -8,6 +8,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
+    let repositoryId: number | null = null;
+    let repoFullName = "unknown";
+    let fileCount = 0;
+
     try {
         // Validate API key — per-repo key lookup with legacy fallback
         const apiKey = req.headers.get("authorization")?.replace("Bearer ", "");
@@ -35,6 +39,9 @@ export async function POST(req: NextRequest) {
             files: Array<{ path: string; content: string }>;
         };
 
+        repoFullName = body.repoFullName ?? repoFullName;
+        fileCount = body.files?.length ?? 0;
+
         if (!body.repoFullName || !body.files || body.files.length === 0) {
             return NextResponse.json(
                 {
@@ -45,21 +52,69 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        if (process.env.NODE_ENV === "production" && !process.env.CHROMA_URL) {
+            const message =
+                "CHROMA_URL is not configured for production indexing.";
+
+            if (repo) {
+                await db
+                    .update(repositories)
+                    .set({
+                        indexingStatus: "failed",
+                    })
+                    .where(eq(repositories.id, repo.id));
+            }
+
+            console.error("Repository indexing blocked", {
+                repoFullName,
+                repositoryId: repo?.id ?? null,
+                fileCount,
+                error: message,
+            });
+
+            return NextResponse.json(
+                { ok: false, error: message },
+                { status: 500 }
+            );
+        }
+
+        if (repo) {
+            repositoryId = repo.id;
+            await db
+                .update(repositories)
+                .set({
+                    indexingStatus: "indexing",
+                })
+                .where(eq(repositories.id, repo.id));
+        }
+
+        console.info("Repository indexing started", {
+            repoFullName,
+            repositoryId,
+            fileCount,
+        });
+
         const result = await indexRepositoryFiles(
             body.repoFullName,
             body.files
         );
 
-        // Update repository indexing status
-        if (repo) {
+        if (repositoryId) {
             await db
                 .update(repositories)
                 .set({
                     indexingStatus: "indexed",
                     lastIndexedAt: new Date(),
                 })
-                .where(eq(repositories.id, repo.id));
+                .where(eq(repositories.id, repositoryId));
         }
+
+        console.info("Repository indexing completed", {
+            repoFullName,
+            repositoryId,
+            fileCount,
+            indexedChunks: result.indexed,
+        });
 
         return NextResponse.json({
             ok: true,
@@ -70,7 +125,31 @@ export async function POST(req: NextRequest) {
         const message =
             error instanceof Error ? error.message : "Unknown error";
 
-        console.error("Indexing error:", message);
+        console.error("Repository indexing failed", {
+            repoFullName,
+            repositoryId,
+            fileCount,
+            error: message,
+        });
+
+        if (repositoryId) {
+            try {
+                await db
+                    .update(repositories)
+                    .set({
+                        indexingStatus: "failed",
+                    })
+                    .where(eq(repositories.id, repositoryId));
+            } catch (statusError) {
+                console.error("Failed to update repository indexing status", {
+                    repositoryId,
+                    error:
+                        statusError instanceof Error
+                            ? statusError.message
+                            : String(statusError),
+                });
+            }
+        }
 
         return NextResponse.json(
             { ok: false, error: message },
