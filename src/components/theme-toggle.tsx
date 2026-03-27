@@ -11,10 +11,11 @@ export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const currentTheme = resolvedTheme ?? "light";
+  const nextTheme = currentTheme === "dark" ? "light" : "dark";
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon" className="size-9">
+      <Button variant="ghost" size="icon" className="size-9" aria-label="Toggle theme">
         <Moon className="size-4" />
       </Button>
     );
@@ -25,7 +26,8 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       className="size-9"
-      onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
+      aria-label={`Switch to ${nextTheme} theme`}
+      onClick={() => setTheme(nextTheme)}
     >
       {currentTheme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </Button>
