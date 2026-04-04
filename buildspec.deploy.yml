@@ -68,7 +68,7 @@ phases:
           --arg hostPort "${DEPLOYIQ_LOCAL_PORT}" \
           '{
             commands: [
-              "set -euo pipefail",
+              "set -eu",
               "export APP_REGION=\($appRegion)",
               "export DEPLOYIQ_IMAGE_URI=\($imageUri)",
               "export DEPLOYIQ_IMAGE_TAG=\($imageTag)",
