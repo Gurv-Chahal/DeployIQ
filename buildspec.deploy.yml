@@ -1,10 +1,15 @@
 version: 0.2
 
 env:
+  shell: bash
   variables:
     APP_REGION: ca-central-1
     IMAGE_REPO_NAME: deployiq-web
-    CONTAINER_NAME: deployiq-web
+    DEPLOYIQ_DEPLOY_ROOT: /opt/deployiq
+    DEPLOYIQ_PROJECT_NAME: deployiq
+    DEPLOYIQ_LOCAL_PORT: "3001"
+    DOCKER_PLATFORMS: linux/amd64
+    REINDEX_REPO_FULL_NAME: Gurv-Chahal/deployiq
 
 phases:
   install:
@@ -24,20 +29,137 @@ phases:
       - IMAGE_URI=${REPOSITORY_URI}:${IMAGE_TAG}
       - printf "REPOSITORY_URI=%s\nIMAGE_TAG=%s\nIMAGE_URI=%s\n" "$REPOSITORY_URI" "$IMAGE_TAG" "$IMAGE_URI" > image.env
       - aws ecr get-login-password --region ${APP_REGION} | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${APP_REGION}.amazonaws.com
+      - |
+        set -euo pipefail
+        if [ -z "${DEPLOYIQ_EC2_INSTANCE_ID:-}" ] && { [ -z "${DEPLOYIQ_EC2_TARGET_TAG_KEY:-}" ] || [ -z "${DEPLOYIQ_EC2_TARGET_TAG_VALUE:-}" ]; }; then
+          echo "Set DEPLOYIQ_EC2_INSTANCE_ID or DEPLOYIQ_EC2_TARGET_TAG_KEY plus DEPLOYIQ_EC2_TARGET_TAG_VALUE in the deploy environment."
+          exit 1
+        fi
+        if [[ "${DOCKER_PLATFORMS}" == *,* ]]; then
+          docker run --privileged --rm tonistiigi/binfmt --install all
+        fi
+        docker buildx create --name deployiq-builder --use || docker buildx use deployiq-builder
+        docker buildx inspect --bootstrap
   build:
     commands:
       - . ./image.env
-      - docker build -t ${IMAGE_REPO_NAME}:${IMAGE_TAG} .
-      - docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${IMAGE_URI}
-      - docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:latest
+      - docker buildx build --platform "${DOCKER_PLATFORMS}" --tag "${IMAGE_URI}" --tag "${REPOSITORY_URI}:latest" --push .
   post_build:
     commands:
       - . ./image.env
-      - docker push ${IMAGE_URI}
-      - docker push ${REPOSITORY_URI}:latest
-      - printf '[{"name":"%s","imageUri":"%s"}]' "${CONTAINER_NAME}" "${IMAGE_URI}" > imagedefinitions.json
-      # Wait for ECS to stabilize, then trigger RAG re-index
-      - sleep 60
+      - |
+        set -euo pipefail
+        if [ -n "${DEPLOYIQ_EC2_INSTANCE_ID:-}" ]; then
+          jq -n --arg instanceId "${DEPLOYIQ_EC2_INSTANCE_ID}" '{instanceIds: [$instanceId]}' > ssm-targets.json
+        else
+          jq -n \
+            --arg tagKey "${DEPLOYIQ_EC2_TARGET_TAG_KEY}" \
+            --arg tagValue "${DEPLOYIQ_EC2_TARGET_TAG_VALUE}" \
+            '[{Key: ("tag:" + $tagKey), Values: [$tagValue]}]' > ssm-targets.json
+        fi
+
+        jq -n \
+          --arg appRegion "${APP_REGION}" \
+          --arg imageUri "${IMAGE_URI}" \
+          --arg imageTag "${IMAGE_TAG}" \
+          --arg repositoryUri "${REPOSITORY_URI}" \
+          --arg deployRoot "${DEPLOYIQ_DEPLOY_ROOT}" \
+          --arg projectName "${DEPLOYIQ_PROJECT_NAME}" \
+          --arg hostPort "${DEPLOYIQ_LOCAL_PORT}" \
+          '{
+            commands: [
+              "set -euo pipefail",
+              "export APP_REGION=\($appRegion)",
+              "export DEPLOYIQ_IMAGE_URI=\($imageUri)",
+              "export DEPLOYIQ_IMAGE_TAG=\($imageTag)",
+              "export DEPLOYIQ_REPOSITORY_URI=\($repositoryUri)",
+              "export DEPLOYIQ_DEPLOY_ROOT=\($deployRoot)",
+              "export DEPLOYIQ_PROJECT_NAME=\($projectName)",
+              "export DEPLOYIQ_LOCAL_PORT=\($hostPort)",
+              "bash \($deployRoot)/deploy/deploy-on-ec2.sh"
+            ],
+            executionTimeout: ["1800"]
+          }' > ssm-parameters.json
+
+        if [ -n "${DEPLOYIQ_EC2_INSTANCE_ID:-}" ]; then
+          COMMAND_ID=$(aws ssm send-command \
+            --region "${APP_REGION}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy DeployIQ ${IMAGE_TAG}" \
+            --instance-ids "${DEPLOYIQ_EC2_INSTANCE_ID}" \
+            --parameters file://ssm-parameters.json \
+            --query 'Command.CommandId' \
+            --output text)
+        else
+          COMMAND_ID=$(aws ssm send-command \
+            --region "${APP_REGION}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy DeployIQ ${IMAGE_TAG}" \
+            --targets file://ssm-targets.json \
+            --parameters file://ssm-parameters.json \
+            --query 'Command.CommandId' \
+            --output text)
+        fi
+
+        echo "Started SSM deploy command: ${COMMAND_ID}"
+        printf '%s' "${COMMAND_ID}" > ssm-command-id.txt
+
+        ATTEMPT=0
+        until [ "${ATTEMPT}" -ge 90 ]; do
+          INVOCATIONS_JSON=$(aws ssm list-command-invocations \
+            --region "${APP_REGION}" \
+            --command-id "${COMMAND_ID}" \
+            --details \
+            --output json)
+
+          INVOCATION_COUNT=$(echo "${INVOCATIONS_JSON}" | jq '.CommandInvocations | length')
+
+          if [ "${INVOCATION_COUNT}" -eq 0 ]; then
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep 10
+            continue
+          fi
+
+          printf '%s' "${INVOCATIONS_JSON}" > ssm-invocations.json
+
+          if echo "${INVOCATIONS_JSON}" | jq -e '.CommandInvocations | all(.[]; .Status == "Success")' >/dev/null; then
+            echo "Deploy completed successfully on all targeted instances."
+            break
+          fi
+
+          if echo "${INVOCATIONS_JSON}" | jq -e '.CommandInvocations | any(.[]; .Status == "Cancelled" or .Status == "Cancelling" or .Status == "Failed" or .Status == "TimedOut" or .Status == "Undeliverable" or .Status == "Terminated" or .Status == "InvalidPlatform" or .Status == "AccessDenied")' >/dev/null; then
+            echo "${INVOCATIONS_JSON}" | jq -r '.CommandInvocations[] | "Instance: \(.InstanceId)\nStatus: \(.Status)\n--- stdout ---\n\(.CommandPlugins[]?.Output // "")\n"' || true
+            exit 1
+          fi
+
+          ATTEMPT=$((ATTEMPT + 1))
+          sleep 10
+        done
+
+        if [ "${ATTEMPT}" -ge 90 ]; then
+          echo "Timed out waiting for SSM deployment command ${COMMAND_ID} to finish."
+          exit 1
+        fi
+
+        jq -n \
+          --arg imageUri "${IMAGE_URI}" \
+          --arg imageTag "${IMAGE_TAG}" \
+          --arg repositoryUri "${REPOSITORY_URI}" \
+          --arg commandId "${COMMAND_ID}" \
+          --arg deployRoot "${DEPLOYIQ_DEPLOY_ROOT}" \
+          --arg projectName "${DEPLOYIQ_PROJECT_NAME}" \
+          --arg hostPort "${DEPLOYIQ_LOCAL_PORT}" \
+          '{
+            imageUri: $imageUri,
+            imageTag: $imageTag,
+            repositoryUri: $repositoryUri,
+            ssmCommandId: $commandId,
+            deployRoot: $deployRoot,
+            projectName: $projectName,
+            hostPort: $hostPort
+          }' > deployment-metadata.json
+
+        tar -czf deploy-assets.tar.gz deploy
       - |
         : > /tmp/deployiq-index-file-entries.jsonl
         git ls-files | grep -E '\.(ts|tsx|js|jsx|json|yml|yaml)$|(^|/)Dockerfile$' | while read -r file; do
@@ -48,7 +170,7 @@ phases:
         else
           echo '[]' > /tmp/deployiq-files.json
         fi
-        jq -n --arg repo "Gurv-Chahal/deployiq" --slurpfile files /tmp/deployiq-files.json '{repoFullName: $repo, files: $files[0]}' > /tmp/deployiq-index-payload.json
+        jq -n --arg repo "${REINDEX_REPO_FULL_NAME}" --slurpfile files /tmp/deployiq-files.json '{repoFullName: $repo, files: $files[0]}' > /tmp/deployiq-index-payload.json
         set +e
         RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST "${DEPLOYIQ_API_URL}/api/index-repo" \
           -H "Content-Type: application/json" \
@@ -71,4 +193,9 @@ phases:
 
 artifacts:
   files:
-    - imagedefinitions.json
+    - deployment-metadata.json
+    - deploy-assets.tar.gz
+    - image.env
+    - ssm-command-id.txt
+    - ssm-invocations.json
+    - ssm-targets.json
