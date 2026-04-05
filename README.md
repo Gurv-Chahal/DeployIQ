@@ -18,7 +18,6 @@ inspect the changes visually
 - schema.ts -> where we define our tables
 - queries/ -> apps database operations like creating a CRUD operation using tables we created
 
-# Defining Tech Stack
 ## Tech Stack
 
 - Frontend: Next.js 16, React 19, TypeScript
@@ -29,6 +28,3 @@ inspect the changes visually
 - Containerization: Docker
 - AWS Deployment: Amazon ECS on Fargate, Amazon ECR, AWS CodeBuild, AWS CodePipeline
 - AWS Database: Amazon RDS for PostgreSQL
-
-
-changing readme to test new pr # 1
