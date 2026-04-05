@@ -270,15 +270,15 @@ export default async function ReportDetailPage({ params }: Props) {
 
                             {context?.relevantCode && context.relevantCode.length > 0 ? (
                                 context.relevantCode.slice(0, 3).map((chunk, i) => (
-                                    <div key={i} className="rounded-xl bg-white px-3 py-3 dark:bg-stone-800">
-                                        <div className="flex items-center justify-between">
-                                            <p className="font-medium text-stone-900 dark:text-stone-100">Codebase Match</p>
-                                            <span className="text-xs text-violet-600 dark:text-violet-400">
+                                    <div key={i} className="min-w-0 rounded-xl bg-white px-3 py-3 dark:bg-stone-800">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <p className="min-w-0 font-medium text-stone-900 dark:text-stone-100">Codebase Match</p>
+                                            <span className="shrink-0 text-xs text-violet-600 dark:text-violet-400">
                                                 {getMatchRelevance(chunk).toFixed(2)} relevance
                                             </span>
                                         </div>
-                                        <p className="mt-1 font-mono text-xs text-stone-500 dark:text-stone-500">{chunk.filePath}</p>
-                                        <p className="mt-1 line-clamp-2 text-stone-600 dark:text-stone-400">
+                                        <p className="mt-1 break-all font-mono text-xs text-stone-500 dark:text-stone-500">{chunk.filePath}</p>
+                                        <p className="mt-1 line-clamp-2 break-words text-stone-600 dark:text-stone-400">
                                             {chunk.content.slice(0, 150)}...
                                         </p>
                                     </div>
@@ -293,12 +293,14 @@ export default async function ReportDetailPage({ params }: Props) {
 
                             {context?.pastReviews && context.pastReviews.length > 0 && (
                                 context.pastReviews.slice(0, 2).map((pr, i) => (
-                                    <div key={`pr-${i}`} className="rounded-xl bg-white px-3 py-3 dark:bg-stone-800">
-                                        <div className="flex items-center justify-between">
-                                            <p className="font-medium text-stone-900 dark:text-stone-100">Past Review Match</p>
-                                            <span className="text-xs text-violet-600 dark:text-violet-400">{pr.prTitle}</span>
+                                    <div key={`pr-${i}`} className="min-w-0 rounded-xl bg-white px-3 py-3 dark:bg-stone-800">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <p className="min-w-0 font-medium text-stone-900 dark:text-stone-100">Past Review Match</p>
+                                            <span className="line-clamp-2 min-w-0 break-words text-right text-xs text-violet-600 dark:text-violet-400">
+                                                {pr.prTitle}
+                                            </span>
                                         </div>
-                                        <p className="mt-1 line-clamp-2 text-stone-600 dark:text-stone-400">
+                                        <p className="mt-1 line-clamp-2 break-words text-stone-600 dark:text-stone-400">
                                             {pr.content.slice(0, 200)}...
                                         </p>
                                     </div>
